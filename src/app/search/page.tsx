@@ -1,42 +1,96 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { Book } from "@/types";
+import { GENRES } from "@/types/genres";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Search as SearchIcon } from "lucide-react";
+import Link from "next/link";
 
-export default function SearchPage() {
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+function SearchContent() {
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
+  const searchParams = useSearchParams();
+  const activeGenre = searchParams.get("genre");
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { data } = await supabase
-      .from("books")
-      .select("*")
-      .ilike("name", `%${query}%`);
-    setResults(data || []);
+  useEffect(() => {
+    fetchBooks();
+  }, [search, activeGenre]);
+
+  const fetchBooks = async () => {
+    setLoading(true);
+    let query = supabase.from("books").select("*").eq("publication_status", "published");
+
+    if (search) {
+      query = query.ilike("name", `%${search}%`);
+    }
+    
+    if (activeGenre) {
+      query = query.ilike("genre", `%${activeGenre}%`);
+    }
+
+    const { data } = await query;
+    setBooks((data as Book[]) || []);
+    setLoading(false);
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-12">
-      <h2 className="text-3xl font-bold mb-8">Tìm kiếm truyện</h2>
-      <form onSubmit={handleSearch} className="flex gap-2 mb-12">
-        <Input 
-          value={query} 
-          onChange={(e) => setQuery(e.target.value)} 
-          placeholder="Nhập tên truyện..." 
-        />
-        <Button type="submit">Tìm</Button>
-      </form>
-      <div className="space-y-6">
-        {results.map((book) => (
-          <a key={book.id} href={`/truyen/${book.slug}`} className="block border-b pb-4 hover:bg-muted p-2 rounded">
-            <h3 className="text-lg font-bold">{book.name}</h3>
-            <p className="text-sm text-muted-foreground">{book.author_name}</p>
-          </a>
-        ))}
+    <>
+      <div className="space-y-6 mb-12">
+        <div className="relative">
+          <SearchIcon className="absolute left-3 top-3 text-muted-foreground w-5 h-5" />
+          <Input 
+            placeholder="Tìm theo tên truyện..."
+            className="pl-10 h-12 text-lg"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Link href="/search">
+            <Badge variant={!activeGenre ? "default" : "outline"} className="cursor-pointer">Tất cả</Badge>
+          </Link>
+          {GENRES.map((genre) => (
+            <Link key={genre} href={`/search?genre=${encodeURIComponent(genre)}`}>
+              <Badge variant={activeGenre === genre ? "default" : "outline"} className="cursor-pointer">
+                {genre}
+              </Badge>
+            </Link>
+          ))}
+        </div>
       </div>
+
+      {loading ? (
+        <p className="text-center">Đang tải...</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {books.map((book) => (
+            <div key={book.id} className="border p-4 rounded-lg hover:border-primary transition-colors">
+              <Link href={`/truyen/${book.slug}`}>
+                <h3 className="font-bold text-lg mb-1">{book.name}</h3>
+                <p className="text-xs text-muted-foreground mb-2">{book.author_name} • {book.genre}</p>
+                <p className="text-sm line-clamp-3">{book.description}</p>
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <div className="max-w-6xl mx-auto py-12 px-4">
+      <h1 className="text-3xl font-bold mb-8">Tìm kiếm & Phân loại</h1>
+      <Suspense fallback={<p className="text-center">Đang tải bộ lọc...</p>}>
+        <SearchContent />
+      </Suspense>
     </div>
   );
 }

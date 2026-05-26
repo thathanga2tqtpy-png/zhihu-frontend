@@ -1,0 +1,16 @@
+export const GENRES = [
+  "Tiên hiệp",
+  "Đô thị",
+  "Trinh thám",
+  "Học đường",
+  "Cổ tích",
+  "Ngôn tình",
+  "Kinh dị",
+  "Võ hiệp",
+  "Xuyên không",
+  "Huyền huyễn",
+  "Đam mỹ",
+  "Bách hợp",
+  "Đồng nhân",
+  "Cổ đại",
+];
