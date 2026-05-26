@@ -45,6 +45,10 @@ export default function LoginPage() {
               Đăng nhập với Google
             </Button>
           </div>
+          <div className="mt-4 text-center text-sm">
+            Bạn chưa có tài khoản?{" "}
+            <a href="/register" className="text-primary font-bold hover:underline">Đăng ký ngay</a>
+          </div>
         </CardContent>
       </Card>
     </div>

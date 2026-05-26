@@ -1,11 +1,15 @@
--- 1. Thêm cột reading_settings vào bảng users để lưu cấu hình cá nhân hóa
+-- 1. Thêm cột reading_settings vào bảng users
 ALTER TABLE public.users 
 ADD COLUMN IF NOT EXISTS reading_settings JSONB DEFAULT '{
   "fontSize": "text-lg",
   "font": "font-serif"
 }'::jsonb;
 
--- 2. Đảm bảo ràng buộc Foreign Key cho bảng book_comments (nếu chưa có)
+-- 2. Thêm cột view_count vào bảng books
+ALTER TABLE public.books 
+ADD COLUMN IF NOT EXISTS view_count integer DEFAULT 0;
+
+-- 3. Đảm bảo ràng buộc Foreign Key cho bảng book_comments
 DO $$ 
 BEGIN 
   IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name = 'book_comments_user_id_fkey') THEN
@@ -15,7 +19,7 @@ BEGIN
   END IF;
 END $$;
 
--- 3. (Tùy chọn) Bảng lịch sử đọc để hỗ trợ tính năng "Truyện đang đọc"
+-- 4. Bảng lịch sử đọc
 CREATE TABLE IF NOT EXISTS public.reading_history (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   user_id uuid NOT NULL,
@@ -27,5 +31,4 @@ CREATE TABLE IF NOT EXISTS public.reading_history (
   CONSTRAINT reading_history_book_id_fkey FOREIGN KEY (book_id) REFERENCES public.books(id)
 );
 
--- Bật RLS (Row Level Security) cho bảng reading_history (khuyên dùng)
 ALTER TABLE public.reading_history ENABLE ROW LEVEL SECURITY;
