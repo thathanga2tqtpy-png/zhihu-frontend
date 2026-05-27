@@ -164,17 +164,13 @@ export default function SettingsPage() {
                 </div>
                 
                 <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
-                  <DialogTrigger asChild>
-                    <span 
-                      role="button"
-                      tabIndex={0}
-                      className={cn(
-                        buttonVariants({ variant: "outline" }), 
-                        "rounded-full px-6 border-primary/20 hover:bg-primary/5 text-primary cursor-pointer outline-none"
-                      )}
-                    >
-                      Thay đổi mật khẩu
-                    </span>
+                  <DialogTrigger 
+                    className={cn(
+                      buttonVariants({ variant: "outline" }), 
+                      "rounded-full px-6 border-primary/20 hover:bg-primary/5 text-primary cursor-pointer outline-none"
+                    )}
+                  >
+                    Thay đổi mật khẩu
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px] rounded-3xl">
                     <DialogHeader>
