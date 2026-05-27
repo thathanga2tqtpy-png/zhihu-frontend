@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 export const metadata: Metadata = {
-  title: "Zhihu Reads",
-  description: "Trang web đọc truyện ngắn phong cách báo chí",
+  title: "Niềm Vui Thoáng Qua | Tạp chí truyện ngắn & tản văn đặc sắc",
+  description: "Không gian đọc truyện ngắn, tản văn phong cách báo chí tối giản. Nơi lưu giữ những cảm xúc chân thực và những niềm vui nhẹ nhàng trong cuộc sống.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -22,6 +26,7 @@ export default function RootLayout({
         </main>
         <Footer />
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
     </html>
   );
 }

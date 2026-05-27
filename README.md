@@ -1,6 +1,6 @@
-# Zhihu Frontend - Trang Đọc Truyện Ngắn
+# Niềm Vui Thoáng Qua - Tạp chí Truyện Ngắn & Tản Văn
 
-Dự án trang web đọc truyện ngắn phong cách báo chí tối giản, tập trung vào trải nghiệm người dùng.
+Dự án trang web đọc truyện ngắn phong cách báo chí tối giản, tập trung vào trải nghiệm cảm xúc và sự tĩnh lặng.
 
 ## 🚀 Bắt đầu nhanh
 

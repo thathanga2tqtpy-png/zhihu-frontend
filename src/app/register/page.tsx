@@ -40,7 +40,7 @@ export default function RegisterPage() {
   return (
     <div className="max-w-md mx-auto py-20 px-4">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold font-serif italic text-primary">Zhihu Reads</h1>
+        <h1 className="text-3xl font-bold font-serif italic text-primary">Niềm Vui Thoáng Qua</h1>
         <p className="text-muted-foreground mt-2">Tạo tài khoản mới</p>
       </div>
 

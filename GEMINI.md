@@ -1,4 +1,4 @@
-# Dự án Zhihu Frontend - Quy chuẩn & Kiến trúc
+# Dự án Niềm Vui Thoáng Qua - Quy chuẩn & Kiến trúc
 
 Tài liệu này dành cho các nhà phát triển và AI Agent để đảm bảo tính nhất quán của mã nguồn.
 
