@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase";
+import { Metadata } from "next";
+import { BookService } from "@/services/book.service";
 import { CommentSection } from "@/components/comment-section";
 import { ReadingSettings } from "@/components/reading-settings";
 import { notFound } from "next/navigation";
@@ -6,14 +7,31 @@ import { Eye, BookmarkPlus, Tag, User } from "lucide-react";
 import { FollowButton } from "@/components/follow-button";
 import { ViewCounter } from "@/components/view-counter";
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const { data: book } = await BookService.getBookBySlug(slug);
+
+  if (!book) {
+    return {
+      title: "Không tìm thấy truyện | Niềm Vui Thoáng Qua",
+    };
+  }
+
+  return {
+    title: `${book.name} - ${book.author_name} | Niềm Vui Thoáng Qua`,
+    description: book.description || `Đọc truyện ${book.name} của tác giả ${book.author_name} trên Niềm Vui Thoáng Qua.`,
+    openGraph: {
+      title: book.name,
+      description: book.description || `Đọc truyện ${book.name} của tác giả ${book.author_name}.`,
+      images: book.cover_image_url ? [{ url: book.cover_image_url }] : [],
+    },
+  };
+}
+
 export default async function BookPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   
-  const { data: book } = await supabase
-    .from("books")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const { data: book } = await BookService.getBookBySlug(slug);
 
   if (!book) notFound();
 

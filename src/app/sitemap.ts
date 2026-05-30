@@ -1,14 +1,11 @@
 import { MetadataRoute } from 'next'
-import { supabase } from '@/lib/supabase'
+import { BookService } from '@/services/book.service'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://niemvuithoangqua.vn'
 
   // 1. Lấy danh sách tất cả các bộ truyện đã xuất bản
-  const { data: books } = await supabase
-    .from('books')
-    .select('slug, updated_at')
-    .eq('publication_status', 'published')
+  const { data: books } = await BookService.getAllPublishedBooks()
 
   const bookUrls = (books || []).map((book) => ({
     url: `${baseUrl}/truyen/${book.slug}`,

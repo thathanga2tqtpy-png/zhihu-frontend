@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { AuthService } from "@/services/auth.service";
+import { ProfileService } from "@/services/profile.service";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +22,7 @@ export default function ProfilePage() {
 
   const fetchUserData = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await AuthService.getUser();
     
     if (!user) {
       router.push("/login");
@@ -31,24 +32,13 @@ export default function ProfilePage() {
     setUser(user);
 
     // Fetch public profile info
-    const { data: profileData } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+    const { data: profileData } = await ProfileService.getProfileData(user.id);
     
     setProfile(profileData);
 
     // Fetch stats
-    const { count: bookmarkCount } = await supabase
-      .from("bookmarks")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id);
-
-    const { count: commentCount } = await supabase
-      .from("book_comments")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id);
+    const { count: bookmarkCount } = await ProfileService.getBookmarkCount(user.id);
+    const { count: commentCount } = await ProfileService.getCommentCount(user.id);
 
     setStats({
       bookmarks: bookmarkCount || 0,
@@ -59,7 +49,7 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await AuthService.signOut();
     router.push("/");
     toast.success("Đã đăng xuất thành công");
   };

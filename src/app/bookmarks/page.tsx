@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { AuthService } from "@/services/auth.service";
+import { BookmarkService } from "@/services/bookmark.service";
 import { useRouter } from "next/navigation";
 import { Book } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,22 +24,14 @@ export default function BookmarksPage() {
 
   const fetchBookmarks = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await AuthService.getUser();
 
     if (!user) {
       router.push("/login");
       return;
     }
 
-    const { data, error } = await supabase
-      .from("bookmarks")
-      .select(`
-        id,
-        created_at,
-        books (*)
-      `)
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+    const { data, error } = await BookmarkService.getUserBookmarks(user.id);
 
     if (error) {
       console.error("Error fetching bookmarks:", error.message);
@@ -48,10 +42,7 @@ export default function BookmarksPage() {
   };
 
   const removeBookmark = async (id: string) => {
-    const { error } = await supabase
-      .from("bookmarks")
-      .delete()
-      .eq("id", id);
+    const { error } = await BookmarkService.removeBookmark(id);
 
     if (error) {
       toast.error("Không thể xóa truyện đã lưu");
@@ -92,7 +83,7 @@ export default function BookmarksPage() {
                     {/* Image Area */}
                     <div className="w-full sm:w-32 aspect-[2/3] sm:aspect-auto bg-muted overflow-hidden flex-shrink-0 relative">
                       {book.cover_image_url ? (
-                        <img src={book.cover_image_url} alt={book.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <Image src={book.cover_image_url} alt={book.name} fill sizes="(max-width: 640px) 100vw, 128px" className="object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center"><BookOpen className="w-8 h-8 text-muted-foreground/20" /></div>
                       )}

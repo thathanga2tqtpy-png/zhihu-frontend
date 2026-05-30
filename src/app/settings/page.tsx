@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { AuthService } from "@/services/auth.service";
+import { ProfileService } from "@/services/profile.service";
 import { useRouter } from "next/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,7 +40,7 @@ export default function SettingsPage() {
   }, []);
 
   const fetchUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await AuthService.getUser();
     if (!user) {
       router.push("/login");
       return;
@@ -51,7 +52,7 @@ export default function SettingsPage() {
 
   const handleUpdateProfile = async () => {
     setSaving(true);
-    const { error } = await supabase.auth.updateUser({
+    const { error } = await AuthService.updateUser({
       data: { display_name: displayName }
     });
 
@@ -59,10 +60,7 @@ export default function SettingsPage() {
       toast.error("Lỗi cập nhật: " + error.message);
     } else {
       // Sync to public.users table if it exists
-      await supabase
-        .from("users")
-        .update({ display_name: displayName })
-        .eq("id", user.id);
+      await ProfileService.updateProfileData(user.id, { display_name: displayName });
         
       toast.success("Đã cập nhật thông tin cá nhân");
     }
@@ -80,7 +78,7 @@ export default function SettingsPage() {
     }
 
     setSaving(true);
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await AuthService.updateUser({ password });
 
     if (error) {
       toast.error("Lỗi: " + error.message);

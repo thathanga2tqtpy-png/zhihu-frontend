@@ -1,28 +1,18 @@
-import { supabase } from "@/lib/supabase";
+import Image from "next/image";
+import { BookService } from "@/services/book.service";
 import { Book } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Eye, Clock, TrendingUp } from "lucide-react";
 
+export const revalidate = 60; // ISR cache 60 giây
+
 export default async function Home() {
   // 1. Lấy Top lượt xem
-  const { data: topViewed } = await supabase
-    .from("books")
-    .select("*")
-    .eq("publication_status", "published")
-    .order("view_count", { ascending: false })
-    .limit(10);
+  const { data: typedTopViewed } = await BookService.getTopViewedBooks(10);
 
   // 2. Lấy Truyện mới nhất
-  const { data: latestBooks } = await supabase
-    .from("books")
-    .select("*")
-    .eq("publication_status", "published")
-    .order("created_at", { ascending: false })
-    .limit(12);
-
-  const typedTopViewed = topViewed as Book[] | null;
-  const typedLatest = latestBooks as Book[] | null;
+  const { data: typedLatest } = await BookService.getLatestBooks(12);
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 md:px-6 space-y-16 overflow-x-hidden">
@@ -51,10 +41,12 @@ export default async function Home() {
               >
                 <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md bg-muted shadow-sm">
                   {book.cover_image_url && (
-                    <img
+                    <Image
                       src={book.cover_image_url}
                       alt={book.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 33vw, 16vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   )}
                   {/* Genre Badge on Top Overlay */}
@@ -106,12 +98,14 @@ export default async function Home() {
                 key={book.id}
                 className="flex gap-4 md:gap-4 group pb-2 border-b border-border/40 last:border-0"
               >
-                <div className="w-20 h-28 bg-muted flex-shrink-0 overflow-hidden rounded-sm">
+                <div className="relative w-20 h-28 bg-muted flex-shrink-0 overflow-hidden rounded-sm">
                   {book.cover_image_url && (
-                    <img
+                    <Image
                       src={book.cover_image_url}
                       alt={book.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
                     />
                   )}
                 </div>

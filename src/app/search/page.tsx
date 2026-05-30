@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { BookService } from "@/services/book.service";
 import { Book } from "@/types";
 import { GENRES } from "@/types/genres";
 import { Badge } from "@/components/ui/badge";
@@ -23,18 +23,8 @@ function SearchContent() {
 
   const fetchBooks = async () => {
     setLoading(true);
-    let query = supabase.from("books").select("*").eq("publication_status", "published");
-
-    if (search) {
-      query = query.ilike("name", `%${search}%`);
-    }
-    
-    if (activeGenre) {
-      query = query.ilike("genre", `%${activeGenre}%`);
-    }
-
-    const { data } = await query;
-    setBooks((data as Book[]) || []);
+    const { data } = await BookService.searchBooks(search, activeGenre || undefined);
+    setBooks(data || []);
     setLoading(false);
   };
 
