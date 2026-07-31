@@ -1,9 +1,10 @@
 import Image from "next/image";
 import { BookService } from "@/services/book.service";
-import { Book } from "@/types";
+import { Book, Genre } from "@/types";
+import { supabase } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Eye, Clock, TrendingUp } from "lucide-react";
+import { Eye, Clock, TrendingUp, Sparkles } from "lucide-react";
 
 export const revalidate = 60; // ISR cache 60 giây
 
@@ -13,6 +14,18 @@ export default async function Home() {
 
   // 2. Lấy Truyện mới nhất
   const { data: typedLatest } = await BookService.getLatestBooks(12);
+
+  // 3. Chọn 3 danh mục ngẫu nhiên
+  const { data: allGenres } = await supabase.from("genres").select("*");
+  const shuffledGenres = allGenres ? [...allGenres].sort(() => 0.5 - Math.random()).slice(0, 3) : [];
+  
+  // 4. Fetch truyện cho 3 danh mục này
+  const categoryBooksPromises = shuffledGenres.map(async (genre) => {
+    const { data } = await BookService.getBooksByGenre(genre.slug, 4);
+    return { genre, books: data || [] };
+  });
+  
+  const categories = await Promise.all(categoryBooksPromises);
 
   return (
     <div className="max-w-7xl mx-auto py-10 px-4 md:px-6 space-y-16 overflow-x-hidden">
@@ -52,7 +65,7 @@ export default async function Home() {
                   {/* Genre Badge on Top Overlay */}
                   <div className="absolute top-2 left-2 md:top-3 md:left-3 z-20">
                     <Badge className="bg-black/70 text-white border-none text-[8px] md:text-[10px] px-1.5 md:px-2 h-4 md:h-5 backdrop-blur-md shadow-lg">
-                      {book.genre?.split("(")[0].trim()}
+                      {book.book_genres?.[0]?.genres?.name || "Khác"}
                     </Badge>
                   </div>
                 </div>
@@ -121,7 +134,7 @@ export default async function Home() {
                     </span>
                     <span className="opacity-40">•</span>
                     <span className="text-primary/80 font-bold truncate">
-                      {book.genre?.split("(")[0].trim()}
+                      {book.book_genres?.[0]?.genres?.name || "Khác"}
                     </span>
                     <span className="opacity-40 hidden md:inline">•</span>
                     <span className="hidden md:flex items-center gap-1 whitespace-nowrap">
@@ -159,7 +172,7 @@ export default async function Home() {
                       </h4>
                     </a>
                     <p className="text-[10px] md:text-[11px] text-muted-foreground truncate uppercase mt-1 tracking-tight">
-                      {book.genre?.split("(")[0].trim()} •{" "}
+                      {book.book_genres?.[0]?.genres?.name || "Khác"} •{" "}
                       {book.view_count.toLocaleString()}
                     </p>
                   </div>
@@ -177,6 +190,55 @@ export default async function Home() {
           </div>
         </aside>
       </div>
+
+      {/* Section 3: Random Categories */}
+      {categories.map((cat, idx) => (
+        <section key={idx} className="pt-8 border-t border-border/40 mt-16">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-bold tracking-tight uppercase font-serif italic">
+                {cat.genre.name}
+              </h2>
+            </div>
+            <a
+              href={`/search?genreId=${cat.genre.id}`}
+              className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+            >
+              Xem tất cả
+            </a>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {cat.books.map((book) => (
+              <div key={book.id} className="group border rounded-xl overflow-hidden shadow-sm hover:border-primary/30 transition-all">
+                <div className="relative aspect-[2/3] w-full bg-muted">
+                  {book.cover_image_url && (
+                    <Image
+                      src={book.cover_image_url}
+                      alt={book.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  )}
+                </div>
+                <div className="p-4 bg-background">
+                  <a href={`/truyen/${book.slug}`}>
+                    <h4 className="font-bold text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                      {book.name}
+                    </h4>
+                  </a>
+                  <p className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
+                    <span className="truncate">{book.author_name}</span>
+                    <span className="flex items-center gap-1"><Eye className="w-3 h-3"/> {book.view_count > 1000 ? `${(book.view_count/1000).toFixed(1)}k` : book.view_count}</span>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

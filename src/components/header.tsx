@@ -38,6 +38,7 @@ export function Header() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [user, setUser] = useState<any>(null);
+  const [genres, setGenres] = useState<any[]>([]);
 
   useEffect(() => {
     const controlHeader = () => {
@@ -72,6 +73,12 @@ export function Header() {
     };
     getUser();
 
+    const fetchGenres = async () => {
+      const { data } = await supabase.from("genres").select("*").order("name");
+      if (data) setGenres(data);
+    };
+    fetchGenres();
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -83,16 +90,6 @@ export function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
-
-  const NavItems = [
-    "Trang chủ",
-    "Trinh thám",
-    "Tình cảm",
-    "Kinh dị",
-    "Kiếm hiệp",
-    "Tác giả",
-    "Xếp hạng",
-  ];
 
   return (
     <header
@@ -236,15 +233,32 @@ export function Header() {
                         Danh mục
                       </p>
                       <nav className="flex flex-col gap-1">
-                        {NavItems.map((item) => (
-                          <Link
-                            key={item}
-                            href={`/category/${item.toLowerCase()}`}
-                            className="p-2 text-base font-medium hover:text-primary hover:translate-x-1 transition-all"
-                          >
-                            {item}
+                        <Link href="/truyen-moi" className="p-2 text-base font-medium hover:text-primary hover:translate-x-1 transition-all">
+                          Truyện mới
+                        </Link>
+                        <div className="py-2">
+                          <p className="px-2 text-base font-medium text-foreground">Thể loại</p>
+                          <div className="grid grid-cols-2 pl-4 mt-1 gap-1">
+                            {genres.map((genre) => (
+                              <Link
+                                key={genre.slug}
+                                href={`/the-loai/${genre.slug}`}
+                                className="p-2 text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all truncate"
+                              >
+                                {genre.name}
+                              </Link>
+                            ))}
+                          </div>
+                          <Link href="/the-loai" className="block pl-6 py-2 mt-2 text-sm text-primary font-medium hover:translate-x-1 transition-all">
+                            Xem tất cả &rarr;
                           </Link>
-                        ))}
+                        </div>
+                        <Link href="/truyen-full" className="p-2 text-base font-medium hover:text-primary hover:translate-x-1 transition-all">
+                          Truyện full
+                        </Link>
+                        <Link href="/truyen-hot" className="p-2 text-base font-medium hover:text-primary hover:translate-x-1 transition-all">
+                          Truyện hot
+                        </Link>
                       </nav>
                     </div>
                   </div>
@@ -363,16 +377,50 @@ export function Header() {
 
       {/* Navigation Bar: Desktop only */}
       <nav className="border-t pt-0.5 pb-0 hidden md:block">
-        <div className="max-w-7xl mx-auto flex justify-center items-center gap-6">
-          {NavItems.map((item) => (
-            <Link
-              key={item}
-              href={`/category/${item.toLowerCase()}`}
-              className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-all"
-            >
-              {item}
-            </Link>
-          ))}
+        <div className="max-w-7xl mx-auto flex justify-start items-center gap-6 px-4 md:px-6">
+          <Link
+            href="/truyen-moi"
+            className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-all py-3"
+          >
+            Truyện mới
+          </Link>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-all py-3 outline-none flex items-center gap-1 cursor-pointer">
+              Thể loại
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[400px] max-h-[400px] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-1 p-2">
+                {genres.map((genre) => (
+                  <Link href={`/the-loai/${genre.slug}`} key={genre.slug} className="w-full">
+                    <DropdownMenuItem className="w-full cursor-pointer text-sm">
+                      {genre.name}
+                    </DropdownMenuItem>
+                  </Link>
+                ))}
+              </div>
+              <DropdownMenuSeparator />
+              <Link href="/the-loai" className="w-full">
+                <DropdownMenuItem className="w-full cursor-pointer text-primary font-medium justify-center text-sm">
+                  Xem tất cả thể loại
+                </DropdownMenuItem>
+              </Link>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Link
+            href="/truyen-full"
+            className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-all py-3"
+          >
+            Truyện full
+          </Link>
+          
+          <Link
+            href="/truyen-hot"
+            className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-all py-3"
+          >
+            Truyện hot
+          </Link>
         </div>
       </nav>
     </header>
