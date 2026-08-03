@@ -36,7 +36,7 @@ export const BookService = {
   getBookBySlug: async (slug: string) => {
     const { data, error } = await supabase
       .from("books")
-      .select("*, book_genres(genres(*)), chapters(id, title, chapter_number, view_count)")
+      .select("*, book_genres(genres(*)), book_tags(tags(id, name)), chapters(id, title, chapter_number, view_count)")
       .eq("slug", slug)
       .single();
     
@@ -49,9 +49,13 @@ export const BookService = {
   },
 
   getChapterBySlugAndNumber: async (slug: string, chapterNumber: number) => {
-    // 1. Fetch book id
-    const { data: book } = await supabase.from("books").select("id, name, slug, book_genres(genres(slug, name))").eq("slug", slug).single();
+    // 1. Fetch book id and its chapters
+    const { data: book } = await supabase.from("books").select("id, name, slug, book_genres(genres(slug, name)), chapters(id, chapter_number, title)").eq("slug", slug).single();
     if (!book) return { data: null, error: "Book not found" };
+
+    if (book.chapters) {
+      book.chapters.sort((a: any, b: any) => a.chapter_number - b.chapter_number);
+    }
 
     // 2. Fetch chapter
     const { data: chapter, error } = await supabase

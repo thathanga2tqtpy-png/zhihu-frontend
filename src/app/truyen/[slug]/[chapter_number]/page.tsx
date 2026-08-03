@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BookService } from "@/services/book.service";
 import { ReadingSettings } from "@/components/reading-settings";
+import { ChapterNavigator } from "@/components/chapter-navigator";
 import Link from "next/link";
 import { ChevronLeft, List } from "lucide-react";
 import { AdultGate } from "@/components/adult-gate";
@@ -41,7 +42,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
   return (
     <AdultGate isAdult={isAdultBook}>
       <ViewCounter bookId={book.id} chapterId={chapter.id} />
-      <div className="max-w-4xl mx-auto py-8 px-4 relative">
+      <div className="max-w-4xl mx-auto py-4 sm:py-8 px-2 sm:px-4 relative">
       <ReadingSettings />
       
       {/* 🟢 AREA 1: Breadcrumb & Title */}
@@ -58,9 +59,11 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
         </div>
       </div>
 
-      <article id="reading-container" className="transition-all duration-500 rounded-2xl p-6 md:p-12 shadow-sm border border-border/10 bg-background text-foreground min-h-[70vh]">
-        <header className="mb-12 text-center border-b border-border/30 pb-8">
-          <h1 className="text-3xl md:text-4xl font-bold font-serif leading-tight mb-4">
+      <article id="reading-container" className="transition-all duration-500 rounded-2xl px-4 sm:px-6 md:px-12 pt-4 sm:pt-6 md:pt-6 pb-8 md:pb-12 shadow-md border border-border/40 bg-card text-card-foreground min-h-[70vh]">
+        <ChapterNavigator book={book as any} currentChapter={chapter.chapter_number} className="mb-2 pb-2 border-b border-border/30" />
+
+        <header className="mb-4 text-left">
+          <h1 className="text-xl md:text-2xl font-bold font-serif leading-tight text-foreground/90">
             Chương {chapter.chapter_number}: {chapter.title}
           </h1>
         </header>
@@ -73,25 +76,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
         </div>
         
         {/* Navigation buttons */}
-        <div className="mt-16 flex justify-between items-center border-t border-border/30 pt-8">
-          <Link 
-            href={`/truyen/${book.slug}/${chapter.chapter_number > 1 ? chapter.chapter_number - 1 : chapter.chapter_number}`}
-            className={`px-4 py-2 rounded border border-border/50 hover:bg-primary/5 transition-colors ${chapter.chapter_number <= 1 ? 'opacity-50 pointer-events-none' : ''}`}
-          >
-            Chương trước
-          </Link>
-          
-          <Link href={`/truyen/${book.slug}`} className="p-2 border border-border/50 rounded-full hover:bg-primary/5 text-muted-foreground">
-            <List className="w-5 h-5" />
-          </Link>
-          
-          <Link 
-            href={`/truyen/${book.slug}/${chapter.chapter_number + 1}`}
-            className="px-4 py-2 rounded border border-border/50 hover:bg-primary/5 transition-colors"
-          >
-            Chương sau
-          </Link>
-        </div>
+        <ChapterNavigator book={book as any} currentChapter={chapter.chapter_number} className="mt-4 border-t border-border/30 pt-4" />
       </article>
     </div>
     </AdultGate>

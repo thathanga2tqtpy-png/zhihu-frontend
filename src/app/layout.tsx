@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { ThemeProvider } from "@/components/theme-provider";
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 export const metadata: Metadata = {
@@ -18,13 +19,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="h-full">
-      <body className="min-h-full flex flex-col antialiased">
-        <Header />
-        <main className="flex-grow container mx-auto px-4">
-          {children}
-        </main>
-        <Footer />
+    <html lang="vi" className="h-full" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col antialiased" suppressHydrationWarning>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          themes={['light', 'dark', 'coffee', 'system']}
+        >
+          <Header />
+          <main className="flex-grow container mx-auto px-4">
+            {children}
+          </main>
+          <Footer />
+        </ThemeProvider>
       </body>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
     </html>

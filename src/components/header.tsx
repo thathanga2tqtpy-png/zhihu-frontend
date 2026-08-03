@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
@@ -248,7 +249,7 @@ export function Header() {
                   src="/text-logo.png"
                   alt="Niềm Vui Thoáng Qua"
                   fill
-                  className="object-contain"
+                  className="object-contain transition-all duration-300 dark:invert dark:opacity-90 coffee:opacity-85"
                   priority
                 />
               </div>
@@ -259,7 +260,11 @@ export function Header() {
           </div>
 
           {/* User Actions (Right) - Desktop only or Minimal */}
-          <div className="flex justify-end items-center">
+          <div className="flex justify-end items-center gap-2">
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
+            
             {user ? (
               <div className="hidden md:block">
                 <DropdownMenu>
@@ -334,7 +339,9 @@ export function Header() {
               </div>
             )}
             {/* Empty space for grid on mobile to keep logo centered */}
-            <div className="w-9 md:hidden" />
+            <div className="md:hidden flex items-center justify-end">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </div>

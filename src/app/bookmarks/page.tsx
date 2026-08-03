@@ -88,7 +88,7 @@ export default function BookmarksPage() {
                         <div className="w-full h-full flex items-center justify-center"><BookOpen className="w-8 h-8 text-muted-foreground/20" /></div>
                       )}
                       <div className="absolute top-2 left-2 md:hidden">
-                        <Badge className="bg-black/70 text-white border-none text-[8px]">{book.genre?.split('(')[0]}</Badge>
+                        <Badge className="bg-black/70 text-white border-none text-[8px]">{book.book_genres?.[0]?.genres?.name || "Khác"}</Badge>
                       </div>
                     </div>
 
@@ -112,7 +112,7 @@ export default function BookmarksPage() {
                         <div className="flex items-center gap-3 text-[10px] text-muted-foreground mb-4">
                           <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {book.view_count?.toLocaleString()}</span>
                           <span className="opacity-30">•</span>
-                          <span className="text-primary/70 font-bold">{book.genre?.split('(')[0].trim()}</span>
+                          <span className="text-primary/70 font-bold">{book.book_genres?.[0]?.genres?.name || "Khác"}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground pt-3 border-t border-border/40">

@@ -12,6 +12,7 @@ export interface Book {
   created_at: string;
   updated_at: string;
   book_genres?: { genres: Genre }[];
+  book_tags?: { tags: { id: string; name: string } }[];
   chapters?: Chapter[];
 }
 

@@ -14,8 +14,12 @@ export const BookmarkService = {
           slug,
           author_name,
           cover_image_url,
-          genre
-        )
+          view_count,
+          book_genres (
+            genres (
+              name
+            )
+          )
       `)
       .eq("user_id", userId)
       .order("created_at", { ascending: false });

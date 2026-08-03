@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react";
 import { 
   Type, 
-  AlignLeft, 
-  Sun, 
-  Moon, 
-  Coffee, 
+  AlignLeft,
   Settings2,
   X,
   Type as TypeIcon,
@@ -29,11 +26,6 @@ const LINE_HEIGHTS = [
   { label: "2.0", value: "leading-[2.0]" },
 ];
 
-const THEMES = [
-  { id: "light", icon: Sun, class: "theme-light" },
-  { id: "sepia", icon: Coffee, class: "theme-sepia" },
-  { id: "dark", icon: Moon, class: "dark" },
-];
 
 export function ReadingSettings() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,8 +33,7 @@ export function ReadingSettings() {
   const [settings, setSettings] = useState({
     fontSize: "text-lg",
     fontFamily: "font-serif",
-    lineHeight: "leading-[1.8]",
-    theme: "theme-light"
+    lineHeight: "leading-[1.8]"
   });
 
   useEffect(() => {
@@ -56,18 +47,9 @@ export function ReadingSettings() {
   }, []);
 
   const applyToDOM = (s: any) => {
-    const body = document.body;
     const content = document.getElementById("reading-content");
 
-    // 1. Apply Theme to the entire Body
-    body.classList.remove("theme-light", "theme-sepia", "dark");
-    if (s.theme) {
-      body.classList.add(s.theme);
-    } else {
-      body.classList.add("theme-light");
-    }
-
-    // 2. Apply Typography ONLY to the reading content
+    // 1. Apply Typography ONLY to the reading content
     if (content) {
       const fontSizes = FONT_SIZES.map(f => f.value);
       const lineHeights = LINE_HEIGHTS.map(l => l.value);
@@ -85,24 +67,6 @@ export function ReadingSettings() {
 
   const SettingsPanel = () => (
     <div className="space-y-6 p-4">
-      {/* Theme Section */}
-      <div className="space-y-3">
-        <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Màu nền</span>
-        <div className="flex gap-2">
-          {THEMES.map((t) => (
-            <Button
-              key={t.id}
-              variant={settings.theme === t.class ? "default" : "outline"}
-              size="icon"
-              className="rounded-full w-10 h-10"
-              onClick={() => updateSetting("theme", t.class)}
-            >
-              <t.icon className="w-4 h-4" />
-            </Button>
-          ))}
-        </div>
-      </div>
-
       {/* Font Size Section */}
       <div className="space-y-3">
         <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Cỡ chữ</span>
