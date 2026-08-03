@@ -15,7 +15,8 @@ export const AuthService = {
       password,
       options: {
         data: {
-          full_name: fullName,
+          display_name: fullName,
+          full_name: fullName, // Keep for fallback or trigger mapping
         },
       },
     });
