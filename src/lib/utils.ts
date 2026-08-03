@@ -31,7 +31,13 @@ export function timeAgo(dateString: string): string {
 export function obfuscateText(text: string): string {
   if (!text) return text;
   
-  const zeroWidthChars = ['\u200B', '\u200C', '\u200D', '\uFEFF'];
+  // Chỉ sử dụng Zero-Width No-Break Space (\uFEFF) và Zero-Width Joiner (\u200D)
+  // Tuyệt đối KHÔNG dùng \u200B (Zero Width Space) vì nó sẽ tự động xuống dòng khi thiếu chỗ
+  const zeroWidthChars = ['\uFEFF', '\u200D'];
+  
+  // Sử dụng Intl.Segmenter để tách đúng từng ký tự Tiếng Việt (grapheme)
+  // Tránh việc chèn ký tự ẩn vào giữa chữ và dấu (ví dụ: o + ^ -> ô)
+  const segmenter = new Intl.Segmenter('vi-VN', { granularity: 'grapheme' });
   
   // Split by line to preserve formatting
   const lines = text.split('\n');
@@ -40,13 +46,15 @@ export function obfuscateText(text: string): string {
     const words = line.split(' ');
     const obfuscatedWords = words.map(word => {
       // Bỏ qua các từ quá ngắn
-      if (word.length < 3) return word;
+      if (word.length < 2) return word;
       
+      const chars = Array.from(segmenter.segment(word.normalize('NFC'))).map(s => s.segment);
       let newWord = "";
-      for (let i = 0; i < word.length; i++) {
-        newWord += word[i];
-        // 30% xác suất chèn ký tự ẩn giữa các chữ cái
-        if (Math.random() < 0.3) { 
+      
+      for (let i = 0; i < chars.length; i++) {
+        newWord += chars[i];
+        // 30% xác suất chèn ký tự ẩn giữa các ký tự (không chèn ở cuối từ)
+        if (i < chars.length - 1 && Math.random() < 0.3) { 
           const randomChar = zeroWidthChars[Math.floor(Math.random() * zeroWidthChars.length)];
           newWord += randomChar;
         }
