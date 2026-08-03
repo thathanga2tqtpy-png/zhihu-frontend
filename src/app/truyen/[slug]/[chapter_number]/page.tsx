@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ChevronLeft, List } from "lucide-react";
 import { AdultGate } from "@/components/adult-gate";
 import { ViewCounter } from "@/components/view-counter";
-import { obfuscateText } from "@/lib/utils";
+import { CanvasNovelReader } from "@/components/canvas-novel-reader";
 import { CommentSection } from "@/components/comment-section";
 import { RelatedBooks } from "@/components/related-books";
 
@@ -73,9 +73,9 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
 
         <div 
           id="reading-content" 
-          className="max-w-none whitespace-pre-wrap transition-all duration-300 mx-auto"
+          className="max-w-none transition-all duration-300 mx-auto"
         >
-          {obfuscateText(chapter.content)}
+          <CanvasNovelReader content={chapter.content} />
         </div>
         
         {/* Navigation buttons */}
