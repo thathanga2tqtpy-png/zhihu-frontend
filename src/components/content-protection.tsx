@@ -11,9 +11,10 @@ export function ContentProtection({ children }: { children: React.ReactNode }) {
     const isProd = process.env.NEXT_PUBLIC_APP_ENV === "production" || 
                    (!process.env.NEXT_PUBLIC_APP_ENV && process.env.NODE_ENV === "production");
                    
-    if (!isProd) {
-      return;
-    }
+    // Tạm thời comment điều kiện này để test trực tiếp trên dev
+    // if (!isProd) {
+    //   return;
+    // }
 
     // 1. Chặn copy / cut văn bản
     const handleCopy = (e: ClipboardEvent) => {
@@ -30,6 +31,12 @@ export function ContentProtection({ children }: { children: React.ReactNode }) {
       e.preventDefault();
     };
 
+    const wipeDOM = () => {
+      if (typeof document !== 'undefined') {
+        document.body.innerHTML = '<div style="height: 100vh; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: red; background: white;">Hệ thống phát hiện DevTools! Vui lòng F5 tải lại trang.</div>';
+      }
+    };
+
     // 4. Chặn các phím tắt mở DevTools
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -40,30 +47,61 @@ export function ContentProtection({ children }: { children: React.ReactNode }) {
         (e.metaKey && e.key.toUpperCase() === "U")
       ) {
         e.preventDefault();
+        wipeDOM();
         setIsDevToolsOpen(true);
       }
     };
 
+    // Theo dõi Resize để bắt DevTools dạng Docked ngay lập tức
+    const handleResize = () => {
+      const widthThreshold = window.outerWidth - window.innerWidth > 160;
+      const heightThreshold = window.outerHeight - window.innerHeight > 160;
+      if (widthThreshold || heightThreshold) {
+        wipeDOM();
+        setIsDevToolsOpen(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+
     // 5. Phát hiện DevTools qua Debugger Loop và Window Dimensions
     const detectDevTools = () => {
       // a. Kiểm tra kích thước cửa sổ (bắt trường hợp DevTools gắn liền (docked))
-      const widthDiff = window.outerWidth - window.innerWidth > 200;
-      const heightDiff = window.outerHeight - window.innerHeight > 200;
-      if (widthDiff || heightDiff) {
+      const widthThreshold = window.outerWidth - window.innerWidth > 160;
+      const heightThreshold = window.outerHeight - window.innerHeight > 160;
+      if (widthThreshold || heightThreshold) {
+        wipeDOM();
         setIsDevToolsOpen(true);
       }
 
       // b. Debugger loop (bắt trường hợp DevTools tách rời (undocked))
       const start = Date.now();
-      // Lệnh này sẽ làm dừng main thread nếu DevTools đang mở (trừ khi họ tắt breakpoint)
-      // Dùng Function để trình nén code (minifier) trên Vercel không tự động xóa lệnh này đi
-      Function('debugger')(); 
+      try {
+        Function('debugger')(); 
+      } catch (err) {
+        // Fallback an toàn
+        // eslint-disable-next-line no-debugger
+        debugger;
+      }
       const duration = Date.now() - start;
       if (duration > 100) {
+        wipeDOM();
         setIsDevToolsOpen(true);
       }
     };
     
+    // c. Bẫy Console (Chạy 1 lần duy nhất)
+    // Khi DevTools mở ra, nó sẽ cố gắng đọc (parse) nội dung trong console.log
+    // Ngay lúc nó đọc, hàm getter sẽ được gọi và xóa sạch DOM ngay lập tức!
+    const consoleTrap = new Image();
+    Object.defineProperty(consoleTrap, 'id', {
+      get: function() {
+        wipeDOM();
+        setIsDevToolsOpen(true);
+        throw new Error("DevTools Detected");
+      }
+    });
+    console.dir(consoleTrap);
+
     // Kiểm tra liên tục mỗi giây
     const intervalId = setInterval(detectDevTools, 1000);
 
@@ -79,6 +117,7 @@ export function ContentProtection({ children }: { children: React.ReactNode }) {
       document.removeEventListener("dragstart", handleDrag);
       document.removeEventListener("contextmenu", handleContextMenu);
       document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", handleResize);
       clearInterval(intervalId);
     };
   }, []);
