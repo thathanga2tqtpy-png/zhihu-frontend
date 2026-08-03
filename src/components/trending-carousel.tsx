@@ -15,23 +15,19 @@ export function TrendingCarousel({ books }: { books: any[] }) {
       const children = el.children;
       if (children.length === 0) return;
 
-      // Find current scroll position
-      let nextIndex = 0;
-      for (let i = 0; i < children.length; i++) {
-        const child = children[i] as HTMLElement;
-        if (child.offsetLeft > el.scrollLeft + 10) { // +10 for some tolerance
-          nextIndex = i;
-          break;
-        }
+      if (Math.ceil(el.scrollLeft + el.clientWidth) >= el.scrollWidth - 2) {
+        // We reached the end, loop back to start
+        el.scrollTo({ left: 0, behavior: "smooth" });
+        return;
       }
 
-      if (nextIndex === 0 && el.scrollLeft > 0) {
-        // We reached the end
-        el.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        // Scroll to next child
-        const nextChild = children[nextIndex] as HTMLElement;
-        el.scrollTo({ left: nextChild.offsetLeft, behavior: "smooth" });
+      // Scroll to next child
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i] as HTMLElement;
+        if (child.offsetLeft > el.scrollLeft + 10) {
+          el.scrollTo({ left: child.offsetLeft, behavior: "smooth" });
+          break;
+        }
       }
     }, 3000);
 
