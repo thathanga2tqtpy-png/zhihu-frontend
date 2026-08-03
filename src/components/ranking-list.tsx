@@ -5,28 +5,25 @@ import Image from "next/image";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 
-type RankingPeriod = "day" | "week" | "month" | "all";
+type RankingPeriod = "day" | "week" | "month";
 
 export function RankingList({
   dayRankings,
   weekRankings,
-  monthRankings,
-  allRankings
+  monthRankings
 }: {
   dayRankings: any[];
   weekRankings: any[];
   monthRankings: any[];
-  allRankings: any[];
 }) {
-  const [activeTab, setActiveTab] = useState<RankingPeriod>("all");
+  const [activeTab, setActiveTab] = useState<RankingPeriod>("day");
 
   const getCurrentList = () => {
     switch (activeTab) {
       case "day": return dayRankings;
       case "week": return weekRankings;
       case "month": return monthRankings;
-      case "all": return allRankings;
-      default: return allRankings;
+      default: return dayRankings;
     }
   };
 
@@ -45,7 +42,6 @@ export function RankingList({
           { id: "day", label: "Ngày" },
           { id: "week", label: "Tuần" },
           { id: "month", label: "Tháng" },
-          { id: "all", label: "Tất cả" },
         ].map((tab) => (
           <button
             key={tab.id}

@@ -178,7 +178,6 @@ export default async function Home() {
             dayRankings={dayRankings || []}
             weekRankings={weekRankings || []}
             monthRankings={monthRankings || []}
-            allRankings={typedTopViewed?.slice(0, 8) || []}
           />
 
           <div className="border rounded-xl p-6">
