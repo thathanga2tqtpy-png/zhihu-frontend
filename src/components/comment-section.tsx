@@ -90,28 +90,42 @@ export function CommentSection({ bookId }: { bookId: string }) {
       </div>
 
       {/* Comment Form */}
-      <div className="bg-muted/30 p-6 rounded-2xl border border-border/50 shadow-sm transition-all duration-300">
+      <div className="group relative bg-card rounded-3xl border border-border/60 shadow-sm focus-within:shadow-md focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/10 transition-all duration-500">
         {user ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="w-3.5 h-3.5 text-primary" />
+          <form onSubmit={handleSubmit} className="relative overflow-hidden">
+            <div className="flex gap-3 sm:gap-4 p-4 sm:p-5 pb-2">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-primary/20 to-primary/5 flex-shrink-0 flex items-center justify-center border border-primary/20 shadow-inner">
+                <User className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Đang bình luận với tên: <span className="text-foreground">{user.user_metadata?.display_name || user.email?.split('@')[0]}</span>
-              </span>
+              <div className="flex-1">
+                <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1.5 flex items-center gap-2">
+                  <span>{user.user_metadata?.display_name || user.email?.split('@')[0]}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                </div>
+                <Textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Chia sẻ góc nhìn của bạn về tác phẩm..."
+                  className="min-h-[80px] w-full bg-transparent border-none focus-visible:ring-0 text-base resize-none p-0 text-foreground placeholder:text-muted-foreground/50"
+                  disabled={loading}
+                />
+              </div>
             </div>
-            <Textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Chia sẻ cảm nghĩ của bạn về tác phẩm này..."
-              className="min-h-[120px] bg-background border-none focus-visible:ring-1 focus-visible:ring-primary/30 text-base resize-none"
-              disabled={loading}
-            />
-            <div className="flex justify-end">
-              <Button type="submit" disabled={loading} className="gap-2 rounded-full px-6">
+            
+            <div className="flex justify-between items-center px-4 sm:px-5 pb-3 sm:pb-4 pt-3 bg-muted/10 border-t border-border/30 mt-2">
+              <div className="text-[10px] sm:text-[11px] text-muted-foreground/70 hidden sm:block italic font-serif">
+                "Văn minh, lịch sự và tôn trọng lẫn nhau."
+              </div>
+              <Button 
+                type="submit" 
+                disabled={loading || !newComment.trim()} 
+                className={cn(
+                  "gap-2 rounded-full px-6 shadow-sm transition-all duration-300 ml-auto",
+                  newComment.trim() ? "hover:shadow-md hover:scale-105 active:scale-95" : "opacity-50"
+                )}
+              >
                 <Send className="w-4 h-4" />
-                {loading ? "Đang gửi..." : "Gửi bình luận"}
+                {loading ? "Đang gửi..." : "Đăng bình luận"}
               </Button>
             </div>
           </form>

@@ -44,10 +44,18 @@ export function ContentProtection() {
       }
     };
 
-    // 5. Phát hiện DevTools qua Debugger Loop
-    const detectDevToolsDebugger = () => {
+    // 5. Phát hiện DevTools qua Debugger Loop và Window Dimensions
+    const detectDevTools = () => {
+      // a. Kiểm tra kích thước cửa sổ (bắt trường hợp DevTools gắn liền (docked))
+      const widthDiff = window.outerWidth - window.innerWidth > 200;
+      const heightDiff = window.outerHeight - window.innerHeight > 200;
+      if (widthDiff || heightDiff) {
+        setIsDevToolsOpen(true);
+      }
+
+      // b. Debugger loop (bắt trường hợp DevTools tách rời (undocked))
       const start = Date.now();
-      // Lệnh này sẽ làm dừng main thread nếu DevTools đang mở
+      // Lệnh này sẽ làm dừng main thread nếu DevTools đang mở (trừ khi họ tắt breakpoint)
       // eslint-disable-next-line no-debugger
       debugger; 
       const duration = Date.now() - start;
@@ -57,7 +65,7 @@ export function ContentProtection() {
     };
     
     // Kiểm tra liên tục mỗi giây
-    const intervalId = setInterval(detectDevToolsDebugger, 1000);
+    const intervalId = setInterval(detectDevTools, 1000);
 
     document.addEventListener("copy", handleCopy);
     document.addEventListener("cut", handleCopy);
