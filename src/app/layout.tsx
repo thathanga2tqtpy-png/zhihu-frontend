@@ -29,12 +29,13 @@ export default function RootLayout({
           disableTransitionOnChange
           themes={['light', 'dark', 'coffee', 'system']}
         >
-          <ContentProtection />
-          <Header />
-          <main className="flex-grow container mx-auto px-4">
-            {children}
-          </main>
-          <Footer />
+          <ContentProtection>
+            <Header />
+            <main className="flex-grow container mx-auto px-4">
+              {children}
+            </main>
+            <Footer />
+          </ContentProtection>
         </ThemeProvider>
       </body>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />

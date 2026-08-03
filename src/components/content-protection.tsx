@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export function ContentProtection() {
+export function ContentProtection({ children }: { children: React.ReactNode }) {
   const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
 
   useEffect(() => {
@@ -84,6 +84,11 @@ export function ContentProtection() {
   }, []);
 
   if (isDevToolsOpen) {
+    // Ngay lập tức xóa sạch nội dung gốc để tránh Inspect Element kịp đọc
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden';
+    }
+    
     return (
       <div className="fixed inset-0 z-[99999] bg-background flex flex-col items-center justify-center p-6 text-center">
         <h1 className="text-3xl font-bold text-destructive mb-4">Cảnh báo bảo mật</h1>
@@ -101,7 +106,6 @@ export function ContentProtection() {
     );
   }
 
-  // Nếu thêm CSS user-select: text, người dùng vẫn có thể bôi đen nhưng không copy được.
-  // Việc đó có thể áp dụng ở CSS toàn cục hoặc không ảnh hưởng ở đây.
-  return null;
+  // Nếu bình thường, render ra toàn bộ nội dung web
+  return <>{children}</>;
 }
