@@ -4,6 +4,7 @@ import { ReadingSettings } from "@/components/reading-settings";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, List } from "lucide-react";
+import { AdultGate } from "@/components/adult-gate";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string, chapter_number: string }> }): Promise<Metadata> {
   const { slug, chapter_number } = await params;
@@ -29,9 +30,16 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
   if (!data) notFound();
 
   const { book, chapter } = data;
+  
+  const genres = book.book_genres?.map((bg: any) => bg.genres).filter(Boolean) || [];
+  
+  const adultSlugs = ['h', 'co-h', '18+', 'sac'];
+  const adultNames = ['h', 'có h', '18+', 'sắc'];
+  const isAdultBook = genres.some((g: any) => adultSlugs.includes(g.slug) || adultNames.includes(g.name.toLowerCase()));
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 relative">
+    <AdultGate isAdult={isAdultBook}>
+      <div className="max-w-4xl mx-auto py-8 px-4 relative">
       <ReadingSettings />
       
       {/* 🟢 AREA 1: Breadcrumb & Title */}
@@ -84,5 +92,6 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
         </div>
       </article>
     </div>
+    </AdultGate>
   );
 }

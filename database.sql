@@ -10,6 +10,7 @@ CREATE TABLE public.users (
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   reading_settings jsonb DEFAULT '{"font": "font-serif", "fontSize": "text-lg"}'::jsonb,
+  is_adult_verified boolean DEFAULT false,
   CONSTRAINT users_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.books (

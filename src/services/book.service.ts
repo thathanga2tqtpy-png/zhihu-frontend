@@ -50,7 +50,7 @@ export const BookService = {
 
   getChapterBySlugAndNumber: async (slug: string, chapterNumber: number) => {
     // 1. Fetch book id
-    const { data: book } = await supabase.from("books").select("id, name, slug").eq("slug", slug).single();
+    const { data: book } = await supabase.from("books").select("id, name, slug, book_genres(genres(slug, name))").eq("slug", slug).single();
     if (!book) return { data: null, error: "Book not found" };
 
     // 2. Fetch chapter
@@ -160,5 +160,15 @@ export const BookService = {
     mix = mix.filter((v, i, a) => a.findIndex(t => (t.id === v.id)) === i);
 
     return { data: mix };
+  },
+
+  getLatestComments: async (limit: number = 5) => {
+    const { data, error } = await supabase
+      .from("book_comments")
+      .select("*, users(display_name), books(name, slug)")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+      
+    return { data, error };
   }
 };

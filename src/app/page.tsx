@@ -20,6 +20,9 @@ export default async function Home() {
   const { data: allGenres } = await supabase.from("genres").select("*");
   const shuffledGenres = allGenres ? [...allGenres].sort(() => 0.5 - Math.random()).slice(0, 3) : [];
   
+  // 4. Lấy bình luận mới nhất
+  const { data: recentComments } = await BookService.getLatestComments(5);
+  
   // 4. Fetch truyện cho 3 danh mục này
   const categoryBooksPromises = shuffledGenres.map(async (genre) => {
     const { data } = await BookService.getBooksByGenre(genre.slug, 6);
@@ -98,9 +101,9 @@ export default async function Home() {
       <Separator />
 
       {/* Section 2: Main Layout with Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 lg:gap-16">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Left: Latest Updates List (Compact) */}
-        <div className="lg:col-span-3 space-y-10">
+        <div className="lg:col-span-2 space-y-10">
           <div className="flex items-end gap-3 mb-6 md:mb-8">
             <Clock className="w-6 h-6 text-primary" />
             <h2 className="text-xl md:text-2xl font-bold tracking-tight">
@@ -169,21 +172,37 @@ export default async function Home() {
             </h3>
             <div className="space-y-6">
               {typedTopViewed?.slice(0, 8).map((book, index) => (
-                <div key={book.id} className="flex items-center gap-4 group">
+                <div key={book.id} className="flex items-center gap-3 group">
                   <span
-                    className={`text-xl md:text-2xl font-black w-8 text-center ${index < 3 ? "text-primary" : "text-muted-foreground/30"}`}
+                    className={`text-xl md:text-2xl font-black w-6 text-center shrink-0 ${index < 3 ? "text-primary" : "text-muted-foreground/30"}`}
                   >
                     {index + 1}
                   </span>
+                  
+                  <a href={`/truyen/${book.slug}`} className="block shrink-0">
+                    <div className="relative w-10 h-14 bg-muted rounded overflow-hidden shadow-sm">
+                      {book.cover_image_url && (
+                        <Image
+                          src={book.cover_image_url}
+                          alt={book.name}
+                          fill
+                          sizes="40px"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      )}
+                    </div>
+                  </a>
+
                   <div className="flex-1 min-w-0">
                     <a href={`/truyen/${book.slug}`} className="block">
-                      <h4 className="font-bold text-xs md:text-sm truncate group-hover:underline">
+                      <h4 className="font-bold text-xs md:text-sm truncate group-hover:text-primary transition-colors">
                         {book.name}
                       </h4>
                     </a>
-                    <p className="text-[10px] md:text-[11px] text-muted-foreground truncate uppercase mt-1 tracking-tight">
-                      {book.book_genres?.[0]?.genres?.name || "Khác"} •{" "}
-                      {book.view_count.toLocaleString()}
+                    <p className="text-[10px] md:text-[11px] text-muted-foreground truncate uppercase mt-1.5 tracking-tight flex items-center gap-1.5">
+                      <span className="truncate">{book.book_genres?.[0]?.genres?.name || "Khác"}</span>
+                      <span className="opacity-40">•</span>
+                      <span className="flex items-center gap-1 shrink-0"><Eye className="w-3 h-3"/> {book.view_count > 1000 ? `${(book.view_count/1000).toFixed(1)}k` : book.view_count}</span>
                     </p>
                   </div>
                 </div>
@@ -191,12 +210,28 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="bg-primary/5 rounded-xl p-6 border border-primary/10">
-            <h4 className="font-bold text-sm mb-3">Thông báo</h4>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Chào mừng bạn đến với hệ thống đọc truyện ngắn phong cách mới.
-              Chúc bạn có những giây phút thư giãn!
-            </p>
+          <div className="border rounded-xl p-6">
+            <h3 className="font-bold text-sm md:text-base mb-6 flex items-center gap-2 uppercase tracking-widest text-muted-foreground">
+              Bình luận mới
+            </h3>
+            <div className="space-y-5">
+              {recentComments && recentComments.length > 0 ? (
+                recentComments.map((comment: any) => (
+                  <div key={comment.id} className="text-sm pb-5 border-b border-border/40 last:border-0 last:pb-0">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="font-bold text-primary truncate max-w-[120px]">{comment.users?.display_name || "Ẩn danh"}</span>
+                      <span className="text-[10px] text-muted-foreground">{timeAgo(comment.created_at)}</span>
+                    </div>
+                    <p className="text-muted-foreground line-clamp-3 italic mb-2 leading-relaxed text-[13px] font-serif">&quot;{comment.content}&quot;</p>
+                    <a href={`/truyen/${comment.books?.slug}`} className="text-[11px] font-semibold hover:text-primary transition-colors truncate block px-2 py-1 bg-muted/50 rounded inline-block max-w-full">
+                      <span className="text-muted-foreground font-normal">Truyện:</span> {comment.books?.name}
+                    </a>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-muted-foreground italic">Chưa có bình luận nào.</p>
+              )}
+            </div>
           </div>
         </aside>
       </div>

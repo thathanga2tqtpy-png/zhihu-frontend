@@ -21,8 +21,13 @@ export const AuthService = {
     });
   },
 
-  signInWithOAuth: async (provider: 'google' | 'github') => {
-    return await supabase.auth.signInWithOAuth({ provider });
+  signInWithOAuth: async (provider: 'google' | 'github', redirectTo?: string) => {
+    return await supabase.auth.signInWithOAuth({ 
+      provider,
+      options: {
+        redirectTo: redirectTo
+      }
+    });
   },
 
   signOut: async () => {

@@ -7,6 +7,7 @@ import { Eye, Tag, User, List } from "lucide-react";
 import { FollowButton } from "@/components/follow-button";
 import { ViewCounter } from "@/components/view-counter";
 import Link from "next/link";
+import { AdultGate } from "@/components/adult-gate";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -37,9 +38,14 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
   if (!book) notFound();
 
   const genres = book.book_genres?.map(bg => bg.genres).filter(Boolean) || [];
+  
+  const adultSlugs = ['h', 'co-h', '18+', 'sac'];
+  const adultNames = ['h', 'có h', '18+', 'sắc'];
+  const isAdultBook = genres.some(g => adultSlugs.includes(g.slug) || adultNames.includes(g.name.toLowerCase()));
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4 relative">
+    <AdultGate isAdult={isAdultBook}>
+      <div className="max-w-4xl mx-auto py-12 px-4 relative">
       <ViewCounter bookId={book.id} />
       
       {/* 🟢 AREA 1: Book Info */}
@@ -127,11 +133,12 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
         </div>
       </article>
 
-      {/* ⚪️ AREA 3: System Area */}
-      <div className="border-t pt-12 border-border/40">
-        <CommentSection bookId={book.id} />
-        <RelatedBooks genreId={genres[0]?.id || null} currentBookId={book.id} />
+        {/* ⚪️ AREA 3: System Area */}
+        <div className="border-t pt-12 border-border/40">
+          <CommentSection bookId={book.id} />
+          <RelatedBooks genreId={genres[0]?.id || null} currentBookId={book.id} />
+        </div>
       </div>
-    </div>
+    </AdultGate>
   );
 }
