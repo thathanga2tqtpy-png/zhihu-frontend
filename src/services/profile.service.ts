@@ -28,7 +28,7 @@ export const ProfileService = {
 
   getCommentCount: async (userId: string) => {
     const { count, error } = await supabase
-      .from("comments")
+      .from("book_comments")
       .select("*", { count: "exact", head: true })
       .eq("user_id", userId);
     return { count, error };
