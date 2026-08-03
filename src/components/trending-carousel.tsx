@@ -52,9 +52,9 @@ export function TrendingCarousel({ books }: { books: any[] }) {
         {books.map((book) => (
         <article
           key={book.id}
-          className="flex-[0_0_calc((100%-32px)/3)] md:flex-[0_0_calc((100%-200px)/6)] snap-start group"
+          className="w-[calc((100%-32px)/3)] md:w-[calc((100%-200px)/6)] shrink-0 snap-start group"
         >
-          <a href={`/truyen/${book.slug}`} className="flex flex-col space-y-1.5">
+          <a href={`/truyen/${book.slug}`} className="flex flex-col space-y-1.5 w-full">
             <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md bg-muted shadow-sm mb-1.5">
               {book.cover_image_url && (
                 <Image
