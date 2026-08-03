@@ -1,10 +1,11 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { BookService } from "@/services/book.service";
 import { ReadingSettings } from "@/components/reading-settings";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, List } from "lucide-react";
 import { AdultGate } from "@/components/adult-gate";
+import { ViewCounter } from "@/components/view-counter";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string, chapter_number: string }> }): Promise<Metadata> {
   const { slug, chapter_number } = await params;
@@ -39,6 +40,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
 
   return (
     <AdultGate isAdult={isAdultBook}>
+      <ViewCounter bookId={book.id} chapterId={chapter.id} />
       <div className="max-w-4xl mx-auto py-8 px-4 relative">
       <ReadingSettings />
       

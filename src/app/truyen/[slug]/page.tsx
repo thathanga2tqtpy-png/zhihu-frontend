@@ -5,7 +5,6 @@ import { CommentSection } from "@/components/comment-section";
 import { notFound } from "next/navigation";
 import { Eye, Tag, User, List } from "lucide-react";
 import { FollowButton } from "@/components/follow-button";
-import { ViewCounter } from "@/components/view-counter";
 import Link from "next/link";
 import { AdultGate } from "@/components/adult-gate";
 
@@ -46,7 +45,6 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
   return (
     <AdultGate isAdult={isAdultBook}>
       <div className="max-w-4xl mx-auto py-12 px-4 relative">
-      <ViewCounter bookId={book.id} />
       
       {/* 🟢 AREA 1: Book Info */}
       <article className="rounded-2xl p-6 md:p-10 mb-12 shadow-sm border border-border/10 bg-background text-foreground">

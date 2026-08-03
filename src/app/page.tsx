@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Eye, Clock, TrendingUp, Sparkles } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
+import { RankingList } from "@/components/ranking-list";
 
 export const revalidate = 60; // ISR cache 60 giây
 
@@ -23,7 +24,14 @@ export default async function Home() {
   // 4. Lấy bình luận mới nhất
   const { data: recentComments } = await BookService.getLatestComments(5);
   
-  // 4. Fetch truyện cho 3 danh mục này
+  // 5. Fetch Ranking Data
+  const [{ data: dayRankings }, { data: weekRankings }, { data: monthRankings }] = await Promise.all([
+    BookService.getRankingsByTime('day', 8),
+    BookService.getRankingsByTime('week', 8),
+    BookService.getRankingsByTime('month', 8)
+  ]);
+  
+  // 6. Fetch truyện cho 3 danh mục này
   const categoryBooksPromises = shuffledGenres.map(async (genre) => {
     const { data } = await BookService.getBooksByGenre(genre.slug, 6);
     return { genre, books: data || [] };
@@ -166,49 +174,12 @@ export default async function Home() {
 
         {/* Right: Rankings / Top Viewed List */}
         <aside className="space-y-10">
-          <div className="border rounded-xl p-6">
-            <h3 className="font-bold text-sm md:text-base mb-6 flex items-center gap-2 uppercase tracking-widest text-muted-foreground">
-              Bảng xếp hạng
-            </h3>
-            <div className="space-y-6">
-              {typedTopViewed?.slice(0, 8).map((book, index) => (
-                <div key={book.id} className="flex items-center gap-3 group">
-                  <span
-                    className={`text-xl md:text-2xl font-black w-6 text-center shrink-0 ${index < 3 ? "text-primary" : "text-muted-foreground/30"}`}
-                  >
-                    {index + 1}
-                  </span>
-                  
-                  <a href={`/truyen/${book.slug}`} className="block shrink-0">
-                    <div className="relative w-10 h-14 bg-muted rounded overflow-hidden shadow-sm">
-                      {book.cover_image_url && (
-                        <Image
-                          src={book.cover_image_url}
-                          alt={book.name}
-                          fill
-                          sizes="40px"
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      )}
-                    </div>
-                  </a>
-
-                  <div className="flex-1 min-w-0">
-                    <a href={`/truyen/${book.slug}`} className="block">
-                      <h4 className="font-bold text-xs md:text-sm truncate group-hover:text-primary transition-colors">
-                        {book.name}
-                      </h4>
-                    </a>
-                    <p className="text-[10px] md:text-[11px] text-muted-foreground truncate uppercase mt-1.5 tracking-tight flex items-center gap-1.5">
-                      <span className="truncate">{book.book_genres?.[0]?.genres?.name || "Khác"}</span>
-                      <span className="opacity-40">•</span>
-                      <span className="flex items-center gap-1 shrink-0"><Eye className="w-3 h-3"/> {book.view_count > 1000 ? `${(book.view_count/1000).toFixed(1)}k` : book.view_count}</span>
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <RankingList 
+            dayRankings={dayRankings || []}
+            weekRankings={weekRankings || []}
+            monthRankings={monthRankings || []}
+            allRankings={typedTopViewed?.slice(0, 8) || []}
+          />
 
           <div className="border rounded-xl p-6">
             <h3 className="font-bold text-sm md:text-base mb-6 flex items-center gap-2 uppercase tracking-widest text-muted-foreground">

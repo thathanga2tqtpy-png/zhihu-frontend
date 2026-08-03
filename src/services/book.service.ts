@@ -170,5 +170,78 @@ export const BookService = {
       .limit(limit);
       
     return { data, error };
+  },
+
+  getRankingsByTime: async (period: 'day' | 'week' | 'month' | 'all', limit: number = 8) => {
+    if (period === 'all') {
+      const { data, error } = await supabase
+        .from("books")
+        .select(`
+          id, name, slug, cover_image_url, author_name, view_count, description, updated_at,
+          book_genres (
+            genres (
+              id, name, slug
+            )
+          )
+        `)
+        .order("view_count", { ascending: false })
+        .limit(limit);
+      return { data, error };
+    }
+
+    // For day, week, month, we query book_views
+    let startDate = new Date();
+    if (period === 'day') {
+      startDate.setDate(startDate.getDate() - 1); // 24 hours ago
+    } else if (period === 'week') {
+      startDate.setDate(startDate.getDate() - 7);
+    } else if (period === 'month') {
+      startDate.setMonth(startDate.getMonth() - 1);
+    }
+
+    const dateStr = startDate.toISOString().split('T')[0];
+
+    const { data: viewsData, error: viewsError } = await supabase
+      .from('book_views')
+      .select('book_id, count')
+      .gte('date', dateStr);
+
+    if (viewsError || !viewsData) return { data: [], error: viewsError };
+
+    // Group by book_id and sum counts
+    const countsMap = new Map<string, number>();
+    viewsData.forEach(row => {
+      countsMap.set(row.book_id, (countsMap.get(row.book_id) || 0) + row.count);
+    });
+
+    if (countsMap.size === 0) return { data: [], error: null };
+
+    // Sort by total views descending and take top N
+    const sortedBookIds = Array.from(countsMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(entry => entry[0]);
+
+    // Fetch book details
+    const { data: booksData, error: booksError } = await supabase
+      .from("books")
+      .select(`
+        id, name, slug, cover_image_url, author_name, view_count, description, updated_at,
+        book_genres (
+          genres (
+            id, name, slug
+          )
+        )
+      `)
+      .in('id', sortedBookIds);
+
+    if (booksError || !booksData) return { data: [], error: booksError };
+
+    // Sort booksData according to sortedBookIds order
+    const books = sortedBookIds
+      .map(id => booksData.find(b => b.id === id))
+      .filter(Boolean);
+
+    return { data: books, error: null };
   }
 };
