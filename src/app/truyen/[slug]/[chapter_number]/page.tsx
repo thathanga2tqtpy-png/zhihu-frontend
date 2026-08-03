@@ -91,6 +91,24 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
         />
       </div>
     </div>
+      {/* JSON-LD cho Chương */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": `Chương ${chapter.chapter_number}: ${chapter.title} - ${book.name}`,
+            "description": `Đọc Chương ${chapter.chapter_number}: ${chapter.title} của truyện ${book.name} trên Niềm Vui Thoáng Qua.`,
+            "url": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://niemvuithoangqua.vn'}/truyen/${book.slug}/${chapter.chapter_number}`,
+            "isPartOf": {
+              "@type": "Book",
+              "name": book.name,
+              "url": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://niemvuithoangqua.vn'}/truyen/${book.slug}`
+            }
+          })
+        }}
+      />
     </AdultGate>
   );
 }

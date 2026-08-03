@@ -155,6 +155,26 @@ export default async function BookPage({ params }: { params: Promise<{ slug: str
           <RelatedBooks genreId={genres[0]?.id || null} currentBookId={book.id} />
         </div>
       </div>
+
+      {/* JSON-LD for Book */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Book",
+            "name": book.name,
+            "author": {
+              "@type": "Person",
+              "name": book.author_name
+            },
+            "description": book.description,
+            "image": book.cover_image_url || "",
+            "genre": genres.map(g => g.name),
+            "url": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://niemvuithoangqua.vn'}/truyen/${book.slug}`
+          })
+        }}
+      />
     </AdultGate>
   );
 }

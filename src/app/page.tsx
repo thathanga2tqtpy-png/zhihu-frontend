@@ -228,6 +228,24 @@ export default async function Home() {
           </div>
         </section>
       ))}
+
+      {/* JSON-LD for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Niềm Vui Thoáng Qua",
+            "url": "https://niemvuithoangqua.vn",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://niemvuithoangqua.vn/search?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          })
+        }}
+      />
     </div>
   );
 }

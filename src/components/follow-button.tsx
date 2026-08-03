@@ -52,9 +52,9 @@ export function FollowButton({ bookId }: { bookId: string }) {
   };
 
   return (
-    <Button 
-      variant={isFollowing ? "secondary" : "outline"} 
-      size="sm" 
+    <Button
+      variant={isFollowing ? "secondary" : "outline"}
+      size="sm"
       className="gap-2 rounded-full"
       onClick={toggleFollow}
       disabled={loading}
@@ -64,7 +64,7 @@ export function FollowButton({ bookId }: { bookId: string }) {
       ) : (
         <BookmarkPlus className="w-4 h-4" />
       )}
-      {isFollowing ? "Đang theo dõi" : "Follow"}
+      {isFollowing ? "Đang theo dõi" : "Theo dõi"}
     </Button>
   );
 }

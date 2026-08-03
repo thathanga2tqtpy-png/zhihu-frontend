@@ -7,10 +7,55 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { ContentProtection } from "@/components/content-protection";
 
 export const metadata: Metadata = {
-  title: "Niềm Vui Thoáng Qua | Tạp chí truyện ngắn & tản văn đặc sắc",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://niemvuithoangqua.vn'),
+  title: {
+    template: "%s | Niềm Vui Thoáng Qua",
+    default: "Niềm Vui Thoáng Qua | Tạp chí truyện ngắn & tản văn đặc sắc",
+  },
   description: "Không gian đọc truyện ngắn, tản văn phong cách báo chí tối giản. Nơi lưu giữ những cảm xúc chân thực và những niềm vui nhẹ nhàng trong cuộc sống.",
+  keywords: ["truyện ngắn", "tản văn", "đọc truyện", "truyện chữ", "niềm vui thoáng qua", "tiểu thuyết", "đọc truyện online"],
+  authors: [{ name: "Niềm Vui Thoáng Qua" }],
+  creator: "Niềm Vui Thoáng Qua",
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    url: "/",
+    title: "Niềm Vui Thoáng Qua | Tạp chí truyện ngắn & tản văn đặc sắc",
+    description: "Không gian đọc truyện ngắn, tản văn phong cách báo chí tối giản.",
+    siteName: "Niềm Vui Thoáng Qua",
+    images: [
+      {
+        url: "/og-image.png", // Ensure you have this image in public/
+        width: 1200,
+        height: 630,
+        alt: "Niềm Vui Thoáng Qua",
+      }
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Niềm Vui Thoáng Qua | Tạp chí truyện ngắn & tản văn đặc sắc",
+    description: "Không gian đọc truyện ngắn, tản văn phong cách báo chí tối giản.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: '/',
+  },
   icons: {
     icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
 };
 

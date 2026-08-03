@@ -20,6 +20,7 @@ export const BookmarkService = {
               name
             )
           )
+        )
       `)
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
