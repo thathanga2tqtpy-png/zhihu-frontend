@@ -56,8 +56,8 @@ export function ContentProtection() {
       // b. Debugger loop (bắt trường hợp DevTools tách rời (undocked))
       const start = Date.now();
       // Lệnh này sẽ làm dừng main thread nếu DevTools đang mở (trừ khi họ tắt breakpoint)
-      // eslint-disable-next-line no-debugger
-      debugger; 
+      // Dùng Function để trình nén code (minifier) trên Vercel không tự động xóa lệnh này đi
+      Function('debugger')(); 
       const duration = Date.now() - start;
       if (duration > 100) {
         setIsDevToolsOpen(true);
