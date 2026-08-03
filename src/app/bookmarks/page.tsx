@@ -73,51 +73,85 @@ export default function BookmarksPage() {
           ))}
         </div>
       ) : bookmarkedBooks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {bookmarkedBooks.map((item) => {
             const book = item.books;
+            const genres = book.book_genres?.map((bg: any) => bg.genres?.name).filter(Boolean) || [];
+
             return (
               <div key={item.id} className="group relative">
-                <Card className="overflow-hidden border-border/40 hover:border-primary/20 transition-all duration-300 rounded-2xl shadow-sm hover:shadow-xl">
-                  <CardContent className="p-0 flex flex-col sm:flex-row h-full">
+                <Card className="overflow-hidden border-border/30 hover:border-primary/40 transition-all duration-500 rounded-xl shadow-sm hover:shadow-lg bg-card/50">
+                  <CardContent className="p-0 flex h-40 sm:h-48">
                     {/* Image Area */}
-                    <div className="w-full sm:w-32 aspect-[2/3] sm:aspect-auto bg-muted overflow-hidden flex-shrink-0 relative">
+                    <Link href={`/truyen/${book.slug}`} className="w-28 sm:w-32 h-full flex-shrink-0 relative overflow-hidden bg-muted/30">
                       {book.cover_image_url ? (
-                        <Image src={book.cover_image_url} alt={book.name} fill sizes="(max-width: 640px) 100vw, 128px" className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <Image 
+                          src={book.cover_image_url} 
+                          alt={book.name} 
+                          fill 
+                          sizes="(max-width: 640px) 112px, 128px" 
+                          className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
+                        />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center"><BookOpen className="w-8 h-8 text-muted-foreground/20" /></div>
+                        <div className="w-full h-full flex items-center justify-center">
+                          <BookOpen className="w-8 h-8 text-muted-foreground/30" />
+                        </div>
                       )}
-                      <div className="absolute top-2 left-2 md:hidden">
-                        <Badge className="bg-black/70 text-white border-none text-[8px]">{book.book_genres?.[0]?.genres?.name || "Khác"}</Badge>
-                      </div>
-                    </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    </Link>
 
                     {/* Content Area */}
-                    <div className="flex-1 p-5 flex flex-col justify-between min-w-0 bg-background">
+                    <div className="flex-1 p-4 sm:p-5 flex flex-col justify-between min-w-0">
                       <div>
-                        <div className="flex justify-between items-start gap-2 mb-2">
+                        <div className="flex justify-between items-start gap-2 mb-1.5">
                           <Link href={`/truyen/${book.slug}`} className="flex-1 min-w-0">
-                            <h3 className="font-bold text-base line-clamp-1 group-hover:text-primary transition-colors">{book.name}</h3>
+                            <h3 className="font-bold font-serif text-lg sm:text-xl line-clamp-1 group-hover:text-primary transition-colors">{book.name}</h3>
                           </Link>
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-7 w-7 text-muted-foreground hover:text-red-500 hover:bg-red-50 -mt-1 -mr-2"
+                            className="h-8 w-8 text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 -mt-1 -mr-2 shrink-0 transition-colors"
                             onClick={() => removeBookmark(item.id)}
+                            title="Bỏ lưu"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-3">{book.author_name}</p>
-                        <div className="flex items-center gap-3 text-[10px] text-muted-foreground mb-4">
-                          <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {book.view_count?.toLocaleString()}</span>
-                          <span className="opacity-30">•</span>
-                          <span className="text-primary/70 font-bold">{book.book_genres?.[0]?.genres?.name || "Khác"}</span>
+                        
+                        <p className="text-[11px] text-muted-foreground uppercase tracking-widest font-semibold mb-3">
+                          {book.author_name}
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                          {genres.length > 0 ? (
+                            genres.slice(0, 3).map((genre: string, idx: number) => (
+                              <Badge key={idx} variant="secondary" className="text-[9px] px-1.5 py-0 bg-primary/5 text-primary/80 hover:bg-primary/10 border-primary/10 font-medium">
+                                {genre}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge variant="secondary" className="text-[9px] px-1.5 py-0 bg-muted text-muted-foreground font-medium">
+                              Chưa phân loại
+                            </Badge>
+                          )}
+                          {genres.length > 3 && (
+                            <Badge variant="secondary" className="text-[9px] px-1.5 py-0 bg-muted text-muted-foreground font-medium">
+                              +{genres.length - 3}
+                            </Badge>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground pt-3 border-t border-border/40">
-                         <Clock className="w-3 h-3" />
-                         <span>Đã lưu vào {new Date(item.created_at).toLocaleDateString('vi-VN')}</span>
+                      
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/30 mt-auto">
+                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium">
+                          <Eye className="w-3.5 h-3.5 text-primary/50" />
+                          <span>{book.view_count?.toLocaleString()} lượt đọc</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground italic">
+                           <Clock className="w-3 h-3" />
+                           <span>Lưu ngày {new Date(item.created_at).toLocaleDateString('vi-VN')}</span>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

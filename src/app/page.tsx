@@ -45,7 +45,7 @@ export default async function Home() {
       {/* Section 1: Top Trending / Featured Small Cards */}
       <section>
         <div className="flex items-center justify-between mb-2 md:mb-3">
-          <div className="flex items-end gap-3">
+          <div className="flex items-center gap-3">
             <TrendingUp className="w-6 h-6 text-primary" />
             <h2 className="text-xl md:text-2xl font-bold tracking-tight">
               Thịnh hành
@@ -69,7 +69,7 @@ export default async function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Left: Latest Updates List (Compact) */}
         <div className="lg:col-span-2 space-y-10">
-          <div className="flex items-end gap-3 mb-6 md:mb-8">
+          <div className="flex items-center gap-3 mb-6 md:mb-8">
             <Clock className="w-6 h-6 text-primary" />
             <h2 className="text-xl md:text-2xl font-bold tracking-tight">
               Mới cập nhật
@@ -167,7 +167,7 @@ export default async function Home() {
       {categories.map((cat, idx) => (
         <section key={idx} className="pt-8 border-t border-border/40 mt-16">
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-end gap-3">
+            <div className="flex items-center gap-3">
               <Sparkles className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-bold tracking-tight uppercase font-serif italic">
                 {cat.genre.name}

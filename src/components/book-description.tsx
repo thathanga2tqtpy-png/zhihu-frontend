@@ -11,7 +11,8 @@ export function BookDescription({ text }: { text: string | null }) {
     return <p className="italic opacity-60">Chưa có mô tả cho truyện này.</p>;
   }
 
-  const lines = text.split('\n');
+  // Xử lý cả dấu xuống dòng thực tế (\n) và chuỗi chữ "\n" bị mã hoá
+  const lines = text.split(/\\n|\n/).filter(line => line.trim() !== '');
   const isLong = lines.length > 4 || text.length > 300;
 
   return (
@@ -23,11 +24,9 @@ export function BookDescription({ text }: { text: string | null }) {
           }`}
         >
         {lines.map((line, i) => (
-          <span key={i}>
-            {line}
-            {i < lines.length - 1 && <br />}
-            {/* If line is empty string (was \n\n), it will render a <br> and the span is empty, effectively causing a double br */}
-          </span>
+          <p key={i} className="mb-4 last:mb-0 text-justify">
+            {line.trim()}
+          </p>
         ))}
         </div>
       </div>
