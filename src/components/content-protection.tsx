@@ -42,9 +42,9 @@ export function ContentProtection({ children }: { children: React.ReactNode }) {
       if (
         e.key === "F12" ||
         (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key.toUpperCase())) ||
-        (e.ctrlKey && e.key.toUpperCase() === "U") ||
+        (e.ctrlKey && ["U", "S", "P"].includes(e.key.toUpperCase())) ||
         (e.metaKey && e.altKey && ["I", "J", "C", "U"].includes(e.key.toUpperCase())) ||
-        (e.metaKey && e.key.toUpperCase() === "U")
+        (e.metaKey && ["U", "S", "P"].includes(e.key.toUpperCase()))
       ) {
         e.preventDefault();
         wipeDOM();
