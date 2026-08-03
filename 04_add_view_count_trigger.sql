@@ -32,7 +32,7 @@ AS $$
 BEGIN
   -- Chỉ cần tăng view ở chương, Trigger sẽ lo việc cộng dồn cho sách!
   UPDATE public.chapters
-  SET view_count = view_count + 1
+  SET view_count = COALESCE(view_count, 0) + 1
   WHERE id = p_chapter_id;
 
   -- Lưu ý: Vẫn cần ghi nhận view hàng ngày cho bảng book_views

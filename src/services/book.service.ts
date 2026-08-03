@@ -241,9 +241,15 @@ export const BookService = {
 
     if (booksError || !booksData) return { data: [], error: booksError };
 
-    // Sort booksData according to sortedBookIds order
+    // Sort booksData according to sortedBookIds order and inject period views
     const books = sortedBookIds
-      .map(id => booksData.find(b => b.id === id))
+      .map(id => {
+        const b = booksData.find(b => b.id === id);
+        if (b) {
+          return { ...b, period_view_count: countsMap.get(id) };
+        }
+        return null;
+      })
       .filter(Boolean);
 
     return { data: books, error: null };

@@ -94,7 +94,7 @@ export function RankingList({
                   <span className="opacity-40">•</span>
                   <span className="flex items-center gap-1 shrink-0">
                     <Eye className="w-3 h-3"/> 
-                    {book.view_count > 1000 ? `${(book.view_count/1000).toFixed(1)}k` : book.view_count}
+                    {(book.period_view_count ?? book.view_count) > 1000 ? `${((book.period_view_count ?? book.view_count)/1000).toFixed(1)}k` : (book.period_view_count ?? book.view_count)}
                   </span>
                 </p>
               </div>

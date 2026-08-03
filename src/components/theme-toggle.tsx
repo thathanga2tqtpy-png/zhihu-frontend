@@ -8,11 +8,11 @@ export function ThemeToggle() {
 
   const toggleTheme = () => {
     const current = theme === 'system' ? resolvedTheme : theme;
-    
+
     if (current === 'light') {
-      setTheme('dark');
-    } else if (current === 'dark') {
       setTheme('coffee');
+    } else if (current === 'coffee') {
+      setTheme('dark');
     } else {
       setTheme('light');
     }
