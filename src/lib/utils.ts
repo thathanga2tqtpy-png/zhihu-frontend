@@ -27,3 +27,34 @@ export function timeAgo(dateString: string): string {
   const years = Math.floor(months / 12);
   return `${years} năm trước`;
 }
+
+export function obfuscateText(text: string): string {
+  if (!text) return text;
+  
+  const zeroWidthChars = ['\u200B', '\u200C', '\u200D', '\uFEFF'];
+  
+  // Split by line to preserve formatting
+  const lines = text.split('\n');
+  const obfuscatedLines = lines.map(line => {
+    // Split by spaces to process words
+    const words = line.split(' ');
+    const obfuscatedWords = words.map(word => {
+      // Bỏ qua các từ quá ngắn
+      if (word.length < 3) return word;
+      
+      let newWord = "";
+      for (let i = 0; i < word.length; i++) {
+        newWord += word[i];
+        // 30% xác suất chèn ký tự ẩn giữa các chữ cái
+        if (Math.random() < 0.3) { 
+          const randomChar = zeroWidthChars[Math.floor(Math.random() * zeroWidthChars.length)];
+          newWord += randomChar;
+        }
+      }
+      return newWord;
+    });
+    return obfuscatedWords.join(' ');
+  });
+  
+  return obfuscatedLines.join('\n');
+}

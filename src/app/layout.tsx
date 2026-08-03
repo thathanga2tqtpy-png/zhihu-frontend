@@ -4,6 +4,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { ContentProtection } from "@/components/content-protection";
 
 export const metadata: Metadata = {
   title: "Niềm Vui Thoáng Qua | Tạp chí truyện ngắn & tản văn đặc sắc",
@@ -28,6 +29,7 @@ export default function RootLayout({
           disableTransitionOnChange
           themes={['light', 'dark', 'coffee', 'system']}
         >
+          <ContentProtection />
           <Header />
           <main className="flex-grow container mx-auto px-4">
             {children}

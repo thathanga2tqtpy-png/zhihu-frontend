@@ -28,6 +28,7 @@ EXECUTE FUNCTION public.update_book_view_count_from_chapters();
 CREATE OR REPLACE FUNCTION public.increment_chapter_view_count(p_chapter_id UUID, p_book_id UUID)
 RETURNS void
 LANGUAGE plpgsql
+SECURITY DEFINER
 AS $$
 BEGIN
   -- Chỉ cần tăng view ở chương, Trigger sẽ lo việc cộng dồn cho sách!

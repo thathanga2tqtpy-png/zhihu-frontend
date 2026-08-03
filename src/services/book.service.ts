@@ -50,7 +50,7 @@ export const BookService = {
 
   getChapterBySlugAndNumber: async (slug: string, chapterNumber: number) => {
     // 1. Fetch book id and its chapters
-    const { data: book } = await supabase.from("books").select("id, name, slug, book_genres(genres(slug, name)), chapters(id, chapter_number, title)").eq("slug", slug).single();
+    const { data: book } = await supabase.from("books").select("id, name, slug, book_genres(genre_id, genres(slug, name)), chapters(id, chapter_number, title)").eq("slug", slug).single();
     if (!book) return { data: null, error: "Book not found" };
 
     if (book.chapters) {

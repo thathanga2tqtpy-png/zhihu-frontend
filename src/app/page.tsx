@@ -7,12 +7,13 @@ import { Separator } from "@/components/ui/separator";
 import { Eye, Clock, TrendingUp, Sparkles } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
 import { RankingList } from "@/components/ranking-list";
+import { TrendingCarousel } from "@/components/trending-carousel";
 
 export const revalidate = 60; // ISR cache 60 giây
 
 export default async function Home() {
-  // 1. Lấy Top lượt xem
-  const { data: typedTopViewed } = await BookService.getTopViewedBooks(10);
+  // 1. Lấy Truyện Thịnh hành (Hot tháng)
+  const { data: typedTopViewed } = await BookService.getRankingsByTime('month', 10);
 
   // 2. Lấy Truyện mới nhất
   const { data: typedLatest } = await BookService.getLatestBooks(12);
@@ -57,52 +58,8 @@ export default async function Home() {
             Xem tất cả
           </a>
         </div>
-        <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-6 gap-4 md:gap-10">
-          {typedTopViewed?.slice(0, 6).map((book) => (
-            <article key={book.id} className="w-full group">
-              <a
-                href={`/truyen/${book.slug}`}
-                className="flex flex-col space-y-1.5"
-              >
-                <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md bg-muted shadow-sm mb-1.5">
-                  {book.cover_image_url && (
-                    <Image
-                      src={book.cover_image_url}
-                      alt={book.name}
-                      fill
-                      sizes="(max-width: 768px) 33vw, 16vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )}
-                </div>
-
-                {/* Information below image */}
-                <div className="space-y-1.5">
-                  <h3 className="text-xs md:text-sm font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors h-8 md:h-10">
-                    {book.name}
-                  </h3>
-                  <div className="flex flex-wrap gap-1 h-[18px] overflow-hidden">
-                    {book.book_genres?.slice(0, 2).map((bg: any, i: number) => (
-                      <span key={i} className="text-[8px] px-1 py-0.5 rounded-sm bg-muted text-muted-foreground font-medium border border-border/50">
-                        {bg.genres?.name}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-wider">
-                    <span className="truncate max-w-[50px] md:max-w-[70px] font-medium">
-                      {book.author_name}
-                    </span>
-                    <span className="flex items-center gap-1 flex-shrink-0">
-                      <Eye className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                      {book.view_count > 1000
-                        ? `${(book.view_count / 1000).toFixed(1)}k`
-                        : book.view_count}
-                    </span>
-                  </div>
-                </div>
-              </a>
-            </article>
-          ))}
+        <div className="w-full">
+          <TrendingCarousel books={typedTopViewed || []} />
         </div>
       </section>
 
@@ -123,7 +80,7 @@ export default async function Home() {
               <a
                 href={`/truyen/${book.slug}`}
                 key={book.id}
-                className="group relative flex gap-4 p-3 rounded-xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all cursor-pointer"
+                className="group relative flex gap-4 p-3 rounded-xl border border-border/40 bg-muted/10 hover:border-border/80 hover:bg-muted/30 shadow-sm hover:shadow-md transition-all cursor-pointer"
               >
                 <div className="flex flex-col flex-shrink-0 w-20">
                   <div className="relative w-20 h-28 bg-muted overflow-hidden rounded-sm">
@@ -147,7 +104,7 @@ export default async function Home() {
                       {book.name}
                     </h4>
                   <div className="flex items-center gap-2 md:gap-3 mt-2 text-[9px] md:text-[11px] text-muted-foreground uppercase tracking-wide overflow-hidden">
-                    <span className="font-semibold truncate max-w-[80px] md:max-w-[100px]">
+                    <span className="font-semibold truncate max-w-[120px] md:max-w-[160px]">
                       {book.author_name}
                     </span>
                     <span className="opacity-40">•</span>
@@ -226,7 +183,7 @@ export default async function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {cat.books.map((book) => (
-              <a href={`/truyen/${book.slug}`} key={book.id} className="group relative flex gap-4 p-3 rounded-xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all cursor-pointer">
+              <a href={`/truyen/${book.slug}`} key={book.id} className="group relative flex gap-4 p-3 rounded-xl border border-border/40 bg-muted/10 hover:border-border/80 hover:bg-muted/30 shadow-sm hover:shadow-md transition-all cursor-pointer">
                 <div className="flex flex-col flex-shrink-0 w-16 sm:w-20">
                   <div className="relative w-16 h-24 sm:w-20 sm:h-28 rounded-md overflow-hidden shadow-sm block">
                     {book.cover_image_url ? (
@@ -251,7 +208,7 @@ export default async function Home() {
                       {book.name}
                     </h4>
                   <div className="text-[10px] sm:text-xs text-muted-foreground mb-2 flex items-center gap-2 uppercase tracking-wider">
-                     <span className="font-medium text-foreground/80 truncate max-w-[120px]">{book.author_name}</span>
+                     <span className="font-medium text-foreground/80 truncate max-w-[150px]">{book.author_name}</span>
                      <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
                      <span className="flex items-center gap-1"><Eye className="w-3 h-3"/> {book.view_count > 1000 ? `${(book.view_count/1000).toFixed(1)}k` : book.view_count}</span>
                   </div>

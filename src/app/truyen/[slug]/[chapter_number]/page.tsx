@@ -7,6 +7,9 @@ import Link from "next/link";
 import { ChevronLeft, List } from "lucide-react";
 import { AdultGate } from "@/components/adult-gate";
 import { ViewCounter } from "@/components/view-counter";
+import { obfuscateText } from "@/lib/utils";
+import { CommentSection } from "@/components/comment-section";
+import { RelatedBooks } from "@/components/related-books";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string, chapter_number: string }> }): Promise<Metadata> {
   const { slug, chapter_number } = await params;
@@ -42,7 +45,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
   return (
     <AdultGate isAdult={isAdultBook}>
       <ViewCounter bookId={book.id} chapterId={chapter.id} />
-      <div className="max-w-4xl mx-auto py-4 sm:py-8 px-2 sm:px-4 relative">
+      <div className="max-w-3xl mx-auto py-4 sm:py-8 px-2 sm:px-4 relative">
       <ReadingSettings />
       
       {/* 🟢 AREA 1: Breadcrumb & Title */}
@@ -72,12 +75,21 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
           id="reading-content" 
           className="max-w-none whitespace-pre-wrap transition-all duration-300 mx-auto"
         >
-          {chapter.content}
+          {obfuscateText(chapter.content)}
         </div>
         
         {/* Navigation buttons */}
         <ChapterNavigator book={book as any} currentChapter={chapter.chapter_number} className="mt-4 border-t border-border/30 pt-4" />
       </article>
+
+      {/* Tương tác và Liên quan */}
+      <div className="mt-12 space-y-12">
+        <CommentSection bookId={book.id} />
+        <RelatedBooks 
+          genreId={(book.book_genres as any)?.[0]?.genre_id || null} 
+          currentBookId={book.id} 
+        />
+      </div>
     </div>
     </AdultGate>
   );
