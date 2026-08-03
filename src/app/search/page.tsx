@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { BookService } from "@/services/book.service";
 import { Book, Genre } from "@/types";
 import { supabase } from "@/lib/supabase";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Search as SearchIcon, BookOpen, Eye } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 function SearchContent() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -17,8 +18,12 @@ function SearchContent() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const searchParams = useSearchParams();
-  const activeGenreId = searchParams.get("genreId");
+  const router = useRouter();
+  const genresParam = searchParams.get("genres");
+  const activeGenreSlugs = genresParam ? genresParam.split(",") : [];
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -36,14 +41,42 @@ function SearchContent() {
   }, [search]);
 
   useEffect(() => {
-    fetchBooks();
-  }, [debouncedSearch, activeGenreId]);
+    setPage(1);
+  }, [debouncedSearch, genresParam]);
 
-  const fetchBooks = async () => {
-    setLoading(true);
-    const { data } = await BookService.searchBooks(debouncedSearch, activeGenreId || undefined);
-    setBooks(data || []);
-    setLoading(false);
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setLoading(true);
+      const { data, count } = await BookService.searchBooks(
+        debouncedSearch, 
+        activeGenreSlugs.length > 0 ? activeGenreSlugs : undefined, 
+        page, 
+        50
+      );
+      setBooks(data || []);
+      setTotalPages(Math.ceil((count || 0) / 50) || 1);
+      setLoading(false);
+    };
+    fetchBooks();
+  }, [debouncedSearch, genresParam, page]);
+
+  const toggleGenre = (slug: string) => {
+    let newSlugs = [...activeGenreSlugs];
+    if (newSlugs.includes(slug)) {
+      newSlugs = newSlugs.filter(s => s !== slug);
+    } else {
+      newSlugs.push(slug);
+    }
+    
+    if (newSlugs.length > 0) {
+      router.push(`/search?genres=${newSlugs.join(",")}`);
+    } else {
+      router.push(`/search`);
+    }
+  };
+
+  const clearGenres = () => {
+    router.push(`/search`);
   };
 
   return (
@@ -60,15 +93,22 @@ function SearchContent() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Link href="/search">
-            <Badge variant={!activeGenreId ? "default" : "outline"} className="cursor-pointer">Tất cả</Badge>
-          </Link>
+          <Badge 
+            variant={activeGenreSlugs.length === 0 ? "default" : "outline"} 
+            className="cursor-pointer"
+            onClick={clearGenres}
+          >
+            Tất cả
+          </Badge>
           {genres.map((genre) => (
-            <Link key={genre.id} href={`/search?genreId=${genre.id}`}>
-              <Badge variant={activeGenreId === genre.id ? "default" : "outline"} className="cursor-pointer">
-                {genre.name}
-              </Badge>
-            </Link>
+            <Badge 
+              key={genre.id}
+              variant={activeGenreSlugs.includes(genre.slug) ? "default" : "outline"} 
+              className="cursor-pointer"
+              onClick={() => toggleGenre(genre.slug)}
+            >
+              {genre.name}
+            </Badge>
           ))}
         </div>
       </div>
@@ -102,6 +142,32 @@ function SearchContent() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      
+      {!loading && totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-10">
+          <Button
+            variant="outline"
+            disabled={page === 1}
+            onClick={() => {
+              setPage(p => p - 1);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
+            Trang trước
+          </Button>
+          <span className="text-sm font-medium">Trang {page} / {totalPages}</span>
+          <Button
+            variant="outline"
+            disabled={page === totalPages}
+            onClick={() => {
+              setPage(p => p + 1);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
+            Trang sau
+          </Button>
         </div>
       )}
     </>

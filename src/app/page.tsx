@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Eye, Clock, TrendingUp, Sparkles } from "lucide-react";
+import { timeAgo } from "@/lib/utils";
 
 export const revalidate = 60; // ISR cache 60 giây
 
@@ -21,7 +22,7 @@ export default async function Home() {
   
   // 4. Fetch truyện cho 3 danh mục này
   const categoryBooksPromises = shuffledGenres.map(async (genre) => {
-    const { data } = await BookService.getBooksByGenre(genre.slug, 4);
+    const { data } = await BookService.getBooksByGenre(genre.slug, 6);
     return { genre, books: data || [] };
   });
   
@@ -31,8 +32,8 @@ export default async function Home() {
     <div className="max-w-7xl mx-auto py-10 px-4 md:px-6 space-y-16 overflow-x-hidden">
       {/* Section 1: Top Trending / Featured Small Cards */}
       <section>
-        <div className="flex items-center justify-between mb-8 md:mb-10">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between mb-2 md:mb-3">
+          <div className="flex items-end gap-3">
             <TrendingUp className="w-6 h-6 text-primary" />
             <h2 className="text-xl md:text-2xl font-bold tracking-tight">
               Thịnh hành
@@ -50,9 +51,9 @@ export default async function Home() {
             <article key={book.id} className="w-full group">
               <a
                 href={`/truyen/${book.slug}`}
-                className="flex flex-col space-y-3"
+                className="flex flex-col space-y-1.5"
               >
-                <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md bg-muted shadow-sm">
+                <div className="relative aspect-[2/3] w-full overflow-hidden rounded-md bg-muted shadow-sm mb-1.5">
                   {book.cover_image_url && (
                     <Image
                       src={book.cover_image_url}
@@ -62,12 +63,6 @@ export default async function Home() {
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   )}
-                  {/* Genre Badge on Top Overlay */}
-                  <div className="absolute top-2 left-2 md:top-3 md:left-3 z-20">
-                    <Badge className="bg-black/70 text-white border-none text-[8px] md:text-[10px] px-1.5 md:px-2 h-4 md:h-5 backdrop-blur-md shadow-lg">
-                      {book.book_genres?.[0]?.genres?.name || "Khác"}
-                    </Badge>
-                  </div>
                 </div>
 
                 {/* Information below image */}
@@ -75,6 +70,13 @@ export default async function Home() {
                   <h3 className="text-xs md:text-sm font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors h-8 md:h-10">
                     {book.name}
                   </h3>
+                  <div className="flex flex-wrap gap-1 h-[18px] overflow-hidden">
+                    {book.book_genres?.slice(0, 2).map((bg: any, i: number) => (
+                      <span key={i} className="text-[8px] px-1 py-0.5 rounded-sm bg-muted text-muted-foreground font-medium border border-border/50">
+                        {bg.genres?.name}
+                      </span>
+                    ))}
+                  </div>
                   <div className="flex items-center justify-between text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-wider">
                     <span className="truncate max-w-[50px] md:max-w-[70px] font-medium">
                       {book.author_name}
@@ -99,7 +101,7 @@ export default async function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 lg:gap-16">
         {/* Left: Latest Updates List (Compact) */}
         <div className="lg:col-span-3 space-y-10">
-          <div className="flex items-center gap-3 mb-6 md:mb-8">
+          <div className="flex items-end gap-3 mb-6 md:mb-8">
             <Clock className="w-6 h-6 text-primary" />
             <h2 className="text-xl md:text-2xl font-bold tracking-tight">
               Mới cập nhật
@@ -107,46 +109,54 @@ export default async function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 md:gap-x-16 gap-y-3 md:gap-y-3">
             {typedLatest?.map((book) => (
-              <div
+              <a
+                href={`/truyen/${book.slug}`}
                 key={book.id}
-                className="flex gap-4 md:gap-4 group pb-2 border-b border-border/40 last:border-0"
+                className="group relative flex gap-4 p-3 rounded-xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all cursor-pointer"
               >
-                <div className="relative w-20 h-28 bg-muted flex-shrink-0 overflow-hidden rounded-sm">
-                  {book.cover_image_url && (
-                    <Image
-                      src={book.cover_image_url}
-                      alt={book.name}
-                      fill
-                      sizes="80px"
-                      className="object-cover"
-                    />
-                  )}
+                <div className="flex flex-col flex-shrink-0 w-20">
+                  <div className="relative w-20 h-28 bg-muted overflow-hidden rounded-sm">
+                    {book.cover_image_url && (
+                      <Image
+                        src={book.cover_image_url}
+                        alt={book.name}
+                        fill
+                        sizes="80px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-center gap-1 text-[8px] md:text-[9px] text-muted-foreground mt-1.5">
+                    <Clock className="w-2.5 h-2.5" />
+                    <span className="truncate">{timeAgo(book.updated_at)}</span>
+                  </div>
                 </div>
                 <div className="flex flex-col justify-start py-1 min-w-0">
-                  <a href={`/truyen/${book.slug}`}>
                     <h4 className="font-bold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors">
                       {book.name}
                     </h4>
-                  </a>
                   <div className="flex items-center gap-2 md:gap-3 mt-2 text-[9px] md:text-[11px] text-muted-foreground uppercase tracking-wide overflow-hidden">
                     <span className="font-semibold truncate max-w-[80px] md:max-w-[100px]">
                       {book.author_name}
                     </span>
                     <span className="opacity-40">•</span>
-                    <span className="text-primary/80 font-bold truncate">
-                      {book.book_genres?.[0]?.genres?.name || "Khác"}
-                    </span>
-                    <span className="opacity-40 hidden md:inline">•</span>
-                    <span className="hidden md:flex items-center gap-1 whitespace-nowrap">
+                    <span className="flex items-center gap-1 whitespace-nowrap">
                       <Eye className="w-3.5 h-3.5" />
-                      {book.view_count.toLocaleString()}
+                      {book.view_count > 1000 ? `${(book.view_count/1000).toFixed(1)}k` : book.view_count}
                     </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {book.book_genres?.slice(0, 4).map((bg: any, i: number) => (
+                      <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-sm bg-muted text-muted-foreground font-medium border border-border/50">
+                        {bg.genres?.name}
+                      </span>
+                    ))}
                   </div>
                   <p className="text-xs md:text-sm text-muted-foreground mt-3 line-clamp-3 leading-relaxed italic font-serif">
                     {book.description}
                   </p>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -195,46 +205,63 @@ export default async function Home() {
       {categories.map((cat, idx) => (
         <section key={idx} className="pt-8 border-t border-border/40 mt-16">
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
+            <div className="flex items-end gap-3">
               <Sparkles className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-bold tracking-tight uppercase font-serif italic">
                 {cat.genre.name}
               </h2>
             </div>
             <a
-              href={`/search?genreId=${cat.genre.id}`}
+              href={`/search?genres=${cat.genre.slug}`}
               className="text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
             >
               Xem tất cả
             </a>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {cat.books.map((book) => (
-              <div key={book.id} className="group border rounded-xl overflow-hidden shadow-sm hover:border-primary/30 transition-all">
-                <div className="relative aspect-[2/3] w-full bg-muted">
-                  {book.cover_image_url && (
-                    <Image
-                      src={book.cover_image_url}
-                      alt={book.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 25vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )}
+              <a href={`/truyen/${book.slug}`} key={book.id} className="group relative flex gap-4 p-3 rounded-xl border border-transparent hover:border-border/50 hover:bg-muted/30 transition-all cursor-pointer">
+                <div className="flex flex-col flex-shrink-0 w-16 sm:w-20">
+                  <div className="relative w-16 h-24 sm:w-20 sm:h-28 rounded-md overflow-hidden shadow-sm block">
+                    {book.cover_image_url ? (
+                      <Image
+                        src={book.cover_image_url}
+                        alt={book.name}
+                        fill
+                        sizes="80px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted" />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-center gap-1 text-[8px] md:text-[9px] text-muted-foreground mt-1.5">
+                    <Clock className="w-2.5 h-2.5" />
+                    <span className="truncate">{timeAgo(book.updated_at)}</span>
+                  </div>
                 </div>
-                <div className="p-4 bg-background">
-                  <a href={`/truyen/${book.slug}`}>
-                    <h4 className="font-bold text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                <div className="flex flex-col flex-1 min-w-0 py-1">
+                    <h4 className="font-bold text-sm sm:text-base leading-tight mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                       {book.name}
                     </h4>
-                  </a>
-                  <p className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
-                    <span className="truncate">{book.author_name}</span>
-                    <span className="flex items-center gap-1"><Eye className="w-3 h-3"/> {book.view_count > 1000 ? `${(book.view_count/1000).toFixed(1)}k` : book.view_count}</span>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground mb-2 flex items-center gap-2 uppercase tracking-wider">
+                     <span className="font-medium text-foreground/80 truncate max-w-[120px]">{book.author_name}</span>
+                     <span className="w-1 h-1 rounded-full bg-muted-foreground/30"></span>
+                     <span className="flex items-center gap-1"><Eye className="w-3 h-3"/> {book.view_count > 1000 ? `${(book.view_count/1000).toFixed(1)}k` : book.view_count}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {book.book_genres?.slice(0, 4).map((bg: any, i: number) => (
+                      <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-sm bg-muted text-muted-foreground font-medium border border-border/50">
+                        {bg.genres?.name}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2 italic font-serif leading-relaxed">
+                     {book.description || "Đang cập nhật nội dung..."}
                   </p>
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </section>

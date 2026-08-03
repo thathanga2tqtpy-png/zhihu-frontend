@@ -75,32 +75,67 @@ export const BookService = {
     return { data, error };
   },
 
-  searchBooks: async (keyword?: string, genreId?: string) => {
-    let query = supabase.from("books").select("*, book_genres!inner(genre_id, genres(*))").eq("publication_status", "published");
+  searchBooks: async (keyword?: string, genreSlugs?: string[], page: number = 1, limit: number = 50) => {
+    let query = supabase.from("books").select("*, book_genres!inner(genres(*))", { count: 'exact' }).eq("publication_status", "published");
     
     if (keyword) {
       query = query.ilike("name", `%${keyword}%`);
     }
     
-    if (genreId) {
-      query = query.eq("book_genres.genre_id", genreId);
+    if (genreSlugs && genreSlugs.length > 0) {
+      let validBookIds: string[] = [];
+      
+      for (let i = 0; i < genreSlugs.length; i++) {
+        const { data } = await supabase
+          .from("book_genres")
+          .select("book_id, genres!inner(slug)")
+          .eq("genres.slug", genreSlugs[i]);
+          
+        const ids = data?.map(d => d.book_id) || [];
+        
+        if (i === 0) {
+          validBookIds = ids;
+        } else {
+          validBookIds = validBookIds.filter(id => ids.includes(id));
+        }
+        
+        // Nếu không có sách nào thỏa mãn, thoát sớm
+        if (validBookIds.length === 0) break;
+      }
+      
+      if (validBookIds.length === 0) {
+        return { data: [], error: null, count: 0 };
+      }
+      
+      query = query.in("id", validBookIds);
     }
     
-    const { data, error } = await query;
-    return { data: data as Book[] | null, error };
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    
+    query = query.range(from, to).order('created_at', { ascending: false });
+    
+    const { data, error, count } = await query;
+    return { data: data as Book[] | null, error, count };
   },
 
   getBooksByGenre: async (genreSlug: string, limit: number = 6) => {
     const { data: genreData } = await supabase.from("genres").select("id").eq("slug", genreSlug).single();
     if (!genreData) return { data: null, error: null };
 
+    const { data: bgData } = await supabase.from("book_genres").select("book_id").eq("genre_id", genreData.id);
+    const bookIds = bgData?.map(bg => bg.book_id) || [];
+
+    if (bookIds.length === 0) return { data: [], error: null };
+
     const { data, error } = await supabase
       .from("books")
-      .select("*, book_genres!inner(genre_id, genres(*))")
+      .select("*, book_genres(genres(*))")
       .eq("publication_status", "published")
-      .eq("book_genres.genre_id", genreData.id)
+      .in("id", bookIds)
       .order("created_at", { ascending: false })
       .limit(limit);
+      
     return { data: data as Book[] | null, error };
   },
 

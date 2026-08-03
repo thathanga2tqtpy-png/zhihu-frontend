@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/sheet";
 
 export function Header() {
-  const [currentDate, setCurrentDate] = useState("");
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [user, setUser] = useState<any>(null);
@@ -56,14 +55,6 @@ export function Header() {
   }, [lastScrollY]);
 
   useEffect(() => {
-    const date = new Date();
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    setCurrentDate(date.toLocaleDateString("vi-VN", options));
 
     const getUser = async () => {
       const {
@@ -98,41 +89,18 @@ export function Header() {
         isVisible ? "translate-y-0 shadow-sm" : "-translate-y-full",
       )}
     >
-      {/* Top Bar: Desktop only */}
-      <div className="border-b py-2 px-4 hidden md:block">
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-[11px] uppercase tracking-widest text-muted-foreground font-medium">
-          <div className="flex items-center gap-4">
-            <span>{currentDate}</span>
-            <span className="opacity-30">|</span>
-            <span>Tuyển tập truyện ngắn đặc sắc</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/about"
-              className="hover:text-primary transition-colors"
-            >
-              Về chúng tôi
-            </Link>
-            <Link
-              href="/contact"
-              className="hover:text-primary transition-colors"
-            >
-              Liên hệ
-            </Link>
-          </div>
-        </div>
-      </div>
+
 
       {/* Main Header */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 pt-2 pb-0 md:pt-4 md:pb-0">
-        <div className="grid grid-cols-3 items-center">
+        <div className="grid grid-cols-3 md:flex md:justify-between items-center">
           {/* Mobile Menu Trigger (Left) */}
-          <div className="flex items-center">
+          <div className="flex items-center md:hidden">
             <Sheet>
               <SheetTrigger
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "icon" }),
-                  "h-9 w-9 cursor-pointer outline-none",
+                  "h-9 w-9 cursor-pointer outline-none md:hidden",
                 )}
               >
                 <Menu className="w-5 h-5" />
@@ -242,14 +210,14 @@ export function Header() {
                             {genres.map((genre) => (
                               <Link
                                 key={genre.slug}
-                                href={`/the-loai/${genre.slug}`}
+                                href={`/search?genres=${genre.slug}`}
                                 className="p-2 text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all truncate"
                               >
                                 {genre.name}
                               </Link>
                             ))}
                           </div>
-                          <Link href="/the-loai" className="block pl-6 py-2 mt-2 text-sm text-primary font-medium hover:translate-x-1 transition-all">
+                          <Link href="/search" className="block pl-6 py-2 mt-2 text-sm text-primary font-medium hover:translate-x-1 transition-all">
                             Xem tất cả &rarr;
                           </Link>
                         </div>
@@ -259,6 +227,9 @@ export function Header() {
                         <Link href="/truyen-hot" className="p-2 text-base font-medium hover:text-primary hover:translate-x-1 transition-all">
                           Truyện hot
                         </Link>
+                        <Link href="/search" className="p-2 text-base font-medium hover:text-primary hover:translate-x-1 transition-all">
+                          Tìm kiếm nâng cao
+                        </Link>
                       </nav>
                     </div>
                   </div>
@@ -266,19 +237,12 @@ export function Header() {
               </SheetContent>
             </Sheet>
 
-            {/* Desktop Search */}
-            <div className="hidden md:flex relative w-48 group ml-4">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground transition-colors group-focus-within:text-primary" />
-              <Input
-                placeholder="Tìm truyện..."
-                className="pl-8 h-7 text-[10px] bg-muted/40 border-none focus-visible:ring-1 focus-visible:ring-primary/20"
-              />
-            </div>
+
           </div>
 
           {/* Logo (Center) - The Star of the Mobile Header */}
           <div className="flex justify-center flex-col items-center">
-            <Link href="/" className="flex flex-col items-center group">
+            <Link href="/" className="flex flex-col md:flex-row items-center md:items-end md:gap-3 group">
               <div className="relative w-36 h-9 md:w-64 md:h-14 transition-transform duration-300 group-hover:scale-[1.02]">
                 <Image
                   src="/text-logo.png"
@@ -288,7 +252,7 @@ export function Header() {
                   priority
                 />
               </div>
-              <p className="hidden md:block text-[8px] uppercase tracking-[0.4em] text-muted-foreground mt-0.5 font-medium opacity-80 whitespace-nowrap">
+              <p className="hidden md:block text-xs uppercase tracking-[0.4em] text-muted-foreground font-medium opacity-80 whitespace-nowrap mb-1">
                 Gói ghém những cảm xúc chân thực
               </p>
             </Link>
@@ -392,7 +356,7 @@ export function Header() {
             <DropdownMenuContent className="w-[400px] max-h-[400px] overflow-y-auto">
               <div className="grid grid-cols-2 gap-1 p-2">
                 {genres.map((genre) => (
-                  <Link href={`/the-loai/${genre.slug}`} key={genre.slug} className="w-full">
+                  <Link href={`/search?genres=${genre.slug}`} key={genre.slug} className="w-full">
                     <DropdownMenuItem className="w-full cursor-pointer text-sm">
                       {genre.name}
                     </DropdownMenuItem>
@@ -400,7 +364,7 @@ export function Header() {
                 ))}
               </div>
               <DropdownMenuSeparator />
-              <Link href="/the-loai" className="w-full">
+              <Link href="/search" className="w-full">
                 <DropdownMenuItem className="w-full cursor-pointer text-primary font-medium justify-center text-sm">
                   Xem tất cả thể loại
                 </DropdownMenuItem>
@@ -420,6 +384,13 @@ export function Header() {
             className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-all py-3"
           >
             Truyện hot
+          </Link>
+          
+          <Link
+            href="/search"
+            className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-all py-3"
+          >
+            Tìm kiếm nâng cao
           </Link>
         </div>
       </nav>
