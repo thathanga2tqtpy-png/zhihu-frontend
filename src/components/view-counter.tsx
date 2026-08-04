@@ -11,7 +11,7 @@ export function ViewCounter({ bookId, chapterId }: { bookId: string, chapterId?:
 
     const timer = setTimeout(async () => {
       if (hasIncremented.current) return;
-      
+
       // Tăng view_count sử dụng RPC
       let error;
       if (chapterId) {
@@ -42,7 +42,7 @@ export function ViewCounter({ bookId, chapterId }: { bookId: string, chapterId?:
             // Cố gắng insert vào book_views, nếu lỗi thì bỏ qua
             const today = new Date().toISOString().split('T')[0];
             await supabase.from('book_views').upsert(
-              { book_id: bookId, date: today, count: 1 }, 
+              { book_id: bookId, date: today, count: 1 },
               { onConflict: 'book_id,date' } // Lưu ý: Upsert trong Supabase Javascript hơi phức tạp để cộng dồn, nên RPC là tốt nhất. 
               // Đây chỉ là fallback cơ bản.
             );
@@ -57,7 +57,7 @@ export function ViewCounter({ bookId, chapterId }: { bookId: string, chapterId?:
           }
         }
       }
-    }, 30000); // 30 giây
+    }, 5000); // 5 giây
 
     return () => clearTimeout(timer);
   }, [bookId, chapterId]);

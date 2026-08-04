@@ -195,15 +195,19 @@ export const BookService = {
 
     // For day, week, month, we query book_views
     let startDate = new Date();
+    // Chuyển sang múi giờ Việt Nam (UTC+7) để xác định đúng ngày
+    const offset = 7 * 60 * 60 * 1000;
+    const localDate = new Date(startDate.getTime() + offset);
+
     if (period === 'day') {
-      startDate.setDate(startDate.getDate() - 1); // 24 hours ago
+      // Chỉ lấy trong ngày hôm nay
     } else if (period === 'week') {
-      startDate.setDate(startDate.getDate() - 7);
+      localDate.setDate(localDate.getDate() - 7);
     } else if (period === 'month') {
-      startDate.setMonth(startDate.getMonth() - 1);
+      localDate.setMonth(localDate.getMonth() - 1);
     }
 
-    const dateStr = startDate.toISOString().split('T')[0];
+    const dateStr = localDate.toISOString().split('T')[0];
 
     const { data: viewsData, error: viewsError } = await supabase
       .from('book_views')
