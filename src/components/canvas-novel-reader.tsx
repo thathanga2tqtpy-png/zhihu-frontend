@@ -1,33 +1,48 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 
-interface CanvasNovelReaderProps {
-  content: string;
+// Component hiển thị Banner AdSense
+function AdSenseBanner() {
+  useEffect(() => {
+    try {
+      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+    } catch (e) {
+      console.error('AdSense error:', e);
+    }
+  }, []);
+
+  return (
+    <div className="my-8 flex justify-center overflow-hidden w-full">
+      <ins className="adsbygoogle"
+           style={{ display: 'inline-block', width: '728px', height: '90px', maxWidth: '100%' }}
+           data-ad-client="ca-pub-8108202645906541"
+           data-ad-slot="6154669759"></ins>
+    </div>
+  );
 }
 
-export function CanvasNovelReader({ content }: CanvasNovelReaderProps) {
+// Component hiển thị 1 cụm Canvas
+interface CanvasChunkProps {
+  paragraphs: string[];
+}
+
+const CanvasChunk = memo(({ paragraphs }: CanvasChunkProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
-  // Split into paragraphs (removing empty lines if any)
-  const paragraphs = content.split('\n').map(p => p.trim()).filter(p => p.length > 0);
-  
-  // Teaser for SEO: First 2 paragraphs
-  const teaserParagraphs = paragraphs.slice(0, 2);
-  const canvasParagraphs = paragraphs.slice(2);
 
-  // Function to calculate and draw text with word wrap
   const renderCanvas = () => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
-    if (!canvas || !container || canvasParagraphs.length === 0) return;
+    if (!canvas || !container || paragraphs.length === 0) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     // Get computed styles from container to inherit ReadingSettings
-    const computedStyle = window.getComputedStyle(container);
+    const readingContent = document.getElementById("reading-content");
+    const styleSource = readingContent || container;
+    const computedStyle = window.getComputedStyle(styleSource);
     const fontSize = parseFloat(computedStyle.fontSize) || 18;
     const fontFamily = computedStyle.fontFamily || 'serif';
     
@@ -77,7 +92,7 @@ export function CanvasNovelReader({ content }: CanvasNovelReaderProps) {
     
     // Calculate total height
     let totalHeight = padding;
-    const wrappedParagraphs = canvasParagraphs.map(text => {
+    const wrappedParagraphs = paragraphs.map(text => {
       const lines = wrapText(text, maxWidth);
       const height = lines.length * lineHeightPx;
       totalHeight += height + paragraphSpacing;
@@ -131,7 +146,6 @@ export function CanvasNovelReader({ content }: CanvasNovelReaderProps) {
     window.addEventListener('resize', handleResize);
     
     // Observer for ReadingSettings injecting classes into #reading-content
-    // We observe the closest parent with id="reading-content"
     const readingContent = document.getElementById("reading-content");
     let observer: MutationObserver | null = null;
     let themeObserver: MutationObserver | null = null;
@@ -170,10 +184,59 @@ export function CanvasNovelReader({ content }: CanvasNovelReaderProps) {
       if (observer) observer.disconnect();
       if (themeObserver) themeObserver.disconnect();
     };
-  }, [content]);
+  }, [paragraphs]);
 
   return (
-    <div ref={containerRef} className="canvas-novel-reader w-full">
+    <div ref={containerRef} className="w-full">
+      <canvas 
+        ref={canvasRef} 
+        className="w-full block select-none pointer-events-none" 
+        style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
+      />
+    </div>
+  );
+});
+CanvasChunk.displayName = 'CanvasChunk';
+
+interface CanvasNovelReaderProps {
+  content: string;
+}
+
+export function CanvasNovelReader({ content }: CanvasNovelReaderProps) {
+  // Split into paragraphs (removing empty lines if any)
+  const paragraphs = content.split('\n').map(p => p.trim()).filter(p => p.length > 0);
+  
+  // Teaser for SEO: First 2 paragraphs
+  const teaserParagraphs = paragraphs.slice(0, 2);
+  const canvasParagraphs = paragraphs.slice(2);
+
+  // Split canvas paragraphs into chunks of ~2000 words
+  const chunks: string[][] = [];
+  let currentChunk: string[] = [];
+  let currentWordCount = 0;
+  const WORDS_PER_AD = 2000;
+
+  canvasParagraphs.forEach(p => {
+    // Count words in the current paragraph
+    const words = p.split(/\s+/).length;
+    currentChunk.push(p);
+    currentWordCount += words;
+
+    // If the chunk exceeds the limit, push it and start a new one
+    if (currentWordCount >= WORDS_PER_AD) {
+      chunks.push(currentChunk);
+      currentChunk = [];
+      currentWordCount = 0;
+    }
+  });
+  
+  // Don't forget the last chunk
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk);
+  }
+
+  return (
+    <div className="canvas-novel-reader w-full">
       {/* SEO Teaser (Real DOM) */}
       <div className="teaser-content space-y-4 mb-4">
         {teaserParagraphs.map((p, idx) => (
@@ -181,12 +244,15 @@ export function CanvasNovelReader({ content }: CanvasNovelReaderProps) {
         ))}
       </div>
       
-      {/* Protected Content (Canvas) */}
-      <canvas 
-        ref={canvasRef} 
-        className="w-full block select-none pointer-events-none" 
-        style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
-      />
+      {/* Protected Content (Chunks of Canvas interleaved with Ads) */}
+      {chunks.map((chunk, index) => (
+        <React.Fragment key={index}>
+          <CanvasChunk paragraphs={chunk} />
+          
+          {/* Insert an AdSense Banner between chunks (except after the very last one) */}
+          {index < chunks.length - 1 && <AdSenseBanner />}
+        </React.Fragment>
+      ))}
     </div>
   );
 }
