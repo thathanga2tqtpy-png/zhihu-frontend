@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { List } from "lucide-react";
+import { List, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,19 +37,21 @@ export function ChapterNavigator({ book, currentChapter, className }: ChapterNav
           href={`/truyen/${book.slug}/${prevChapter.chapter_number}`}
           className={cn(
             buttonVariants({ variant: "secondary", size: "default" }),
-            "rounded-full px-5 sm:px-7 shadow-sm hover:shadow-md transition-all font-semibold text-sm sm:text-[15px]"
+            "rounded-full px-4 sm:px-7 shadow-sm hover:shadow-md transition-all font-semibold text-sm sm:text-[15px]"
           )}
         >
-          Chương trước
+          <ChevronLeft className="w-5 h-5 sm:mr-1" />
+          <span className="hidden sm:inline">Chương trước</span>
         </Link>
       ) : (
         <span 
           className={cn(
             buttonVariants({ variant: "secondary", size: "default" }),
-            "rounded-full px-5 sm:px-7 shadow-sm transition-all font-semibold text-sm sm:text-[15px] opacity-50 pointer-events-none"
+            "rounded-full px-4 sm:px-7 shadow-sm transition-all font-semibold text-sm sm:text-[15px] opacity-50 pointer-events-none"
           )}
         >
-          Chương trước
+          <ChevronLeft className="w-5 h-5 sm:mr-1" />
+          <span className="hidden sm:inline">Chương trước</span>
         </span>
       )}
       
@@ -84,19 +86,21 @@ export function ChapterNavigator({ book, currentChapter, className }: ChapterNav
           href={`/truyen/${book.slug}/${nextChapter.chapter_number}`}
           className={cn(
             buttonVariants({ variant: "default", size: "default" }),
-            "rounded-full px-5 sm:px-7 shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30 transition-all font-semibold text-sm sm:text-[15px]"
+            "rounded-full px-4 sm:px-7 shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30 transition-all font-semibold text-sm sm:text-[15px]"
           )}
         >
-          Chương sau
+          <span className="hidden sm:inline">Chương sau</span>
+          <ChevronRight className="w-5 h-5 sm:ml-1" />
         </Link>
       ) : (
         <span 
           className={cn(
             buttonVariants({ variant: "default", size: "default" }),
-            "rounded-full px-5 sm:px-7 shadow-sm transition-all font-semibold text-sm sm:text-[15px] opacity-50 pointer-events-none"
+            "rounded-full px-4 sm:px-7 shadow-sm transition-all font-semibold text-sm sm:text-[15px] opacity-50 pointer-events-none"
           )}
         >
-          Chương sau
+          <span className="hidden sm:inline">Chương sau</span>
+          <ChevronRight className="w-5 h-5 sm:ml-1" />
         </span>
       )}
     </div>
