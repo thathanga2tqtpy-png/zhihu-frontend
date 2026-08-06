@@ -72,7 +72,7 @@ export default function RootLayout({
     <html lang="vi" className="h-full" suppressHydrationWarning>
       <head>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8108202645906541" crossOrigin="anonymous"></script>
-        <script dangerouslySetInnerHTML={{ __html: `(function(s){s.dataset.zone='11512756',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))` }} />
+        <script dangerouslySetInnerHTML={{ __html: `if(Math.random()<0.3){(function(s){s.dataset.zone='11512756',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))}` }} />
       </head>
       <body className="min-h-full flex flex-col antialiased" suppressHydrationWarning>
         <ThemeProvider
