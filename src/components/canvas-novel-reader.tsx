@@ -96,6 +96,9 @@ export function CanvasNovelReader({ content }: CanvasNovelReaderProps) {
     // Scale context for high DPI
     ctx.scale(dpr, dpr);
 
+    // Clear canvas before drawing to avoid artifacts
+    ctx.clearRect(0, 0, width, totalHeight);
+
     // Draw
     ctx.font = `${computedStyle.fontWeight || 'normal'} ${fontSize}px ${fontFamily}`;
     ctx.fillStyle = color;
@@ -131,24 +134,41 @@ export function CanvasNovelReader({ content }: CanvasNovelReaderProps) {
     // We observe the closest parent with id="reading-content"
     const readingContent = document.getElementById("reading-content");
     let observer: MutationObserver | null = null;
+    let themeObserver: MutationObserver | null = null;
     
+    // We need to wait for CSS transitions (like duration-300 or duration-500) to finish
+    // before reading computedStyle.color, otherwise we get intermediate faded colors.
+    const debouncedRender = () => {
+      setTimeout(renderCanvas, 350); 
+    };
+
     if (readingContent) {
         observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-              // Re-render when font/size changes
-              setTimeout(renderCanvas, 50);
-            }
-        });
+          mutations.forEach((mutation) => {
+              if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                debouncedRender();
+              }
+          });
         });
         observer.observe(readingContent, { attributes: true });
     }
+
+    // Observe theme changes on the <html> element
+    themeObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          debouncedRender();
+        }
+      });
+    });
+    themeObserver.observe(document.documentElement, { attributes: true });
 
     return () => {
       clearTimeout(timer);
       clearTimeout(resizeTimer);
       window.removeEventListener('resize', handleResize);
       if (observer) observer.disconnect();
+      if (themeObserver) themeObserver.disconnect();
     };
   }, [content]);
 
