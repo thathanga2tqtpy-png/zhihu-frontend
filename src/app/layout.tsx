@@ -57,6 +57,9 @@ export const metadata: Metadata = {
     shortcut: "/logo.png",
     apple: "/logo.png",
   },
+  other: {
+    monetag: "2a2d6669445dcf85cbb5c3eaaef9fbb3",
+  },
 };
 
 export default function RootLayout({
