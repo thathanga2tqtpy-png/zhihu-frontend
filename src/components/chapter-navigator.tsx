@@ -23,14 +23,18 @@ interface ChapterNavigatorProps {
 
 export function ChapterNavigator({ book, currentChapter, className }: ChapterNavigatorProps) {
   const chapters = book.chapters || [];
-  const hasNext = chapters.some((c) => c.chapter_number === currentChapter + 1);
-  const hasPrev = chapters.some((c) => c.chapter_number === currentChapter - 1);
+  const currentIndex = chapters.findIndex((c) => c.chapter_number === currentChapter);
+  const prevChapter = currentIndex > 0 ? chapters[currentIndex - 1] : null;
+  const nextChapter = currentIndex !== -1 && currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
+  
+  const hasPrev = !!prevChapter;
+  const hasNext = !!nextChapter;
 
   return (
     <div className={`flex justify-between items-center gap-2 ${className || ""}`}>
       {hasPrev ? (
         <Link 
-          href={`/truyen/${book.slug}/${currentChapter - 1}`}
+          href={`/truyen/${book.slug}/${prevChapter.chapter_number}`}
           className={cn(
             buttonVariants({ variant: "secondary", size: "default" }),
             "rounded-full px-5 sm:px-7 shadow-sm hover:shadow-md transition-all font-semibold text-sm sm:text-[15px]"
@@ -77,7 +81,7 @@ export function ChapterNavigator({ book, currentChapter, className }: ChapterNav
       
       {hasNext ? (
         <Link 
-          href={`/truyen/${book.slug}/${currentChapter + 1}`}
+          href={`/truyen/${book.slug}/${nextChapter.chapter_number}`}
           className={cn(
             buttonVariants({ variant: "default", size: "default" }),
             "rounded-full px-5 sm:px-7 shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30 transition-all font-semibold text-sm sm:text-[15px]"
