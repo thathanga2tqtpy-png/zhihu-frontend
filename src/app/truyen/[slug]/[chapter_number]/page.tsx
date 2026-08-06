@@ -91,9 +91,6 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
           />
         </div>
       </div>
-      {/* Script Quảng Cáo 10% */}
-      <script dangerouslySetInnerHTML={{ __html: `if(Math.random()<0.5){(function(s){s.dataset.zone='11513055',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))}` }} />
-      {/* JSON-LD cho Chương */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
