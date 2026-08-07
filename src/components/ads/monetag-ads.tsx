@@ -13,10 +13,10 @@ export function MonetagAds() {
     const isHomePage = pathname === "/";
     const isBookDetail = /^\/truyen\/[^\/]+$/.test(pathname);
     const isChapter = /^\/truyen\/[^\/]+\/[^\/]+$/.test(pathname);
-    const isCategory = 
-      pathname.startsWith("/the-loai") || 
-      pathname.startsWith("/truyen-hot") || 
-      pathname.startsWith("/truyen-moi") || 
+    const isCategory =
+      pathname.startsWith("/the-loai") ||
+      pathname.startsWith("/truyen-hot") ||
+      pathname.startsWith("/truyen-moi") ||
       pathname.startsWith("/truyen-full") ||
       pathname.startsWith("/search");
 
@@ -24,7 +24,7 @@ export function MonetagAds() {
     if (isHomePage) return;
 
     const now = Date.now();
-    
+
     // Theo dõi thời gian lần đầu vào trang web
     let firstVisitStr = localStorage.getItem("monetag_first_visit");
     if (!firstVisitStr) {
@@ -38,7 +38,7 @@ export function MonetagAds() {
     const injectScript = (zone: string, src: string) => {
       // Tránh việc chèn trùng lặp một script có cùng zone ID
       if (document.querySelector(`script[data-zone="${zone}"]`)) return;
-      
+
       const s = document.createElement("script");
       s.dataset.zone = zone;
       s.src = src;
@@ -50,7 +50,7 @@ export function MonetagAds() {
     // Tần suất: 30 phút/lần
     if (isBookDetail) {
       const lastVignette = parseInt(localStorage.getItem("monetag_last_vignette") || "0", 10);
-      if (now - lastVignette > 30 * 60 * 1000) {
+      if (now - lastVignette > 15 * 60 * 1000) {
         injectScript("11521873", "https://n6wxm.com/vignette.min.js");
         localStorage.setItem("monetag_last_vignette", now.toString());
       }
@@ -61,7 +61,7 @@ export function MonetagAds() {
     // Tần suất: 15 phút/lần, sau 5 phút kể từ lần vào web đầu tiên
     if (isChapter && minutesSinceFirstVisit >= 5) {
       const lastPopunder = parseInt(localStorage.getItem("monetag_last_popunder") || "0", 10);
-      if (now - lastPopunder > 15 * 60 * 1000) {
+      if (now - lastPopunder > 10 * 60 * 1000) {
         injectScript("11512756", "https://al5sm.com/tag.min.js");
         localStorage.setItem("monetag_last_popunder", now.toString());
       }
@@ -72,7 +72,7 @@ export function MonetagAds() {
     // Tần suất: 15 phút/lần, sau 5 phút kể từ lần vào web đầu tiên
     if ((isChapter || isCategory) && minutesSinceFirstVisit >= 5) {
       const lastInPagePush = parseInt(localStorage.getItem("monetag_last_inpage") || "0", 10);
-      if (now - lastInPagePush > 15 * 60 * 1000) {
+      if (now - lastInPagePush > 10 * 60 * 1000) {
         injectScript("11513055", "https://nap5k.com/tag.min.js");
         localStorage.setItem("monetag_last_inpage", now.toString());
       }
