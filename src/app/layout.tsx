@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { ContentProtection } from "@/components/content-protection";
+import { MonetagAds } from "@/components/ads/monetag-ads";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://niemvuithoangqua.vn'),
@@ -71,7 +72,6 @@ export default function RootLayout({
   return (
     <html lang="vi" className="h-full" suppressHydrationWarning>
       <head>
-        <script src="https://quge5.com/88/tag.min.js" data-zone="267312" async data-cfasync="false"></script>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8108202645906541" crossOrigin="anonymous"></script>
       </head>
       <body className="min-h-full flex flex-col antialiased" suppressHydrationWarning>
@@ -83,6 +83,7 @@ export default function RootLayout({
           themes={['light', 'dark', 'coffee', 'system']}
         >
           <ContentProtection>
+            <MonetagAds />
             <Header />
             <main className="flex-grow container mx-auto px-4">
               {children}
