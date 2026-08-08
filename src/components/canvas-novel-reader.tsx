@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, memo } from 'react';
+import { useTheme } from 'next-themes';
 
 // Component hiển thị Banner AdSense
 function AdSenseBanner() {
@@ -30,6 +31,7 @@ interface CanvasChunkProps {
 const CanvasChunk = memo(({ paragraphs }: CanvasChunkProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { resolvedTheme } = useTheme();
 
   const renderCanvas = () => {
     const canvas = canvasRef.current;
@@ -184,7 +186,7 @@ const CanvasChunk = memo(({ paragraphs }: CanvasChunkProps) => {
       if (observer) observer.disconnect();
       if (themeObserver) themeObserver.disconnect();
     };
-  }, [paragraphs]);
+  }, [paragraphs, resolvedTheme]);
 
   return (
     <div ref={containerRef} className="w-full">
@@ -250,7 +252,7 @@ export function CanvasNovelReader({ content }: CanvasNovelReaderProps) {
           <CanvasChunk paragraphs={chunk} />
           
           {/* Insert an AdSense Banner between chunks (except after the very last one) */}
-          {index < chunks.length - 1 && <AdSenseBanner />}
+          {/* index < chunks.length - 1 && <AdSenseBanner /> */}
         </React.Fragment>
       ))}
     </div>
