@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Moon, Sun, Coffee } from "lucide-react";
+import { Moon, Sun, Coffee, Heart } from "lucide-react";
 import { useTheme } from "next-themes";
 export function ThemeToggle() {
   const { setTheme, theme, resolvedTheme } = useTheme();
@@ -12,6 +12,8 @@ export function ThemeToggle() {
     if (current === 'light') {
       setTheme('coffee');
     } else if (current === 'coffee') {
+      setTheme('pink');
+    } else if (current === 'pink') {
       setTheme('dark');
     } else {
       setTheme('light');
@@ -23,9 +25,10 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border/50 bg-background hover:bg-muted focus:outline-none transition-colors overflow-hidden cursor-pointer"
     >
-      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 coffee:-rotate-90 coffee:scale-0" />
-      <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 coffee:rotate-90 coffee:scale-0" />
-      <Coffee className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all text-primary dark:-rotate-90 dark:scale-0 coffee:rotate-0 coffee:scale-100" />
+      <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 coffee:-rotate-90 coffee:scale-0 pink:-rotate-90 pink:scale-0" />
+      <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 coffee:rotate-90 coffee:scale-0 pink:rotate-90 pink:scale-0" />
+      <Coffee className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all text-primary dark:-rotate-90 dark:scale-0 coffee:rotate-0 coffee:scale-100 pink:rotate-90 pink:scale-0" />
+      <Heart className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all text-primary dark:-rotate-90 dark:scale-0 coffee:rotate-90 coffee:scale-0 pink:rotate-0 pink:scale-100" />
       <span className="sr-only">Đổi giao diện</span>
     </button>
   );

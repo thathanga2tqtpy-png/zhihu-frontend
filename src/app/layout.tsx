@@ -80,7 +80,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-          themes={['light', 'dark', 'coffee', 'system']}
+          themes={['light', 'dark', 'coffee', 'pink', 'system']}
         >
           <ContentProtection>
             <MonetagAds />
